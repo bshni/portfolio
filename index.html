@@ -6,7 +6,7 @@
 <title>Mohamed Atia — Data Analyst Portfolio | Python, SQL, Power BI, Tableau</title>
 <meta name="description" content="Portfolio of Mohamed Atia, a data analyst trainee in Alexandria, Egypt with an accounting foundation. Python and SQL data cleaning, statistical analysis, and Power BI / Tableau dashboards that turn raw data into decisions." />
 <link rel="canonical" href="https://bshni.github.io/portfolio/" />
-<meta name="theme-color" content="#0C1B33" />
+<meta name="theme-color" content="#10141B" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
 <!-- Open Graph / WhatsApp, Facebook, Slack, Discord preview -->
@@ -56,15 +56,14 @@
   }
   .skip-link:focus{ left:16px; top:16px; }
   :root{
-    --paper: #0C1B33;
-    --paper-raised: #142949;
-    --ink: #F4EFE2;
-    --ink-soft: #B7C0D6;
-    --ink-faint: #7C88A6;
-    --accent: #E3A542;
-    --accent-soft: #362A13;
-    --accent-ink: #201502;
-    --rule: rgba(244,239,226,0.13);
+    --paper: #10141B;
+    --paper-raised: #1A212B;
+    --ink: #E9ECF2;
+    --ink-soft: #A6B0C0;
+    --ink-faint: #707A8C;
+    --accent: #34D399;
+    --accent-soft: #16302A;
+    --rule: rgba(255,255,255,0.11);
     --serif: 'Newsreader', Georgia, serif;
     --sans: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --mono: 'JetBrains Mono', 'Courier New', monospace;
@@ -93,7 +92,7 @@
   /* ---------- NAV ---------- */
   header.site{
     position: sticky; top:0; z-index: 50;
-    background: rgba(12,27,51,0.92);
+    background: rgba(16,20,27,0.86);
     backdrop-filter: blur(6px);
     border-bottom: 1px solid var(--rule);
   }
@@ -111,7 +110,7 @@
   nav.links a{
     font-family: var(--mono); font-size: 12.5px; color: var(--ink-faint);
     text-decoration:none; padding: 8px 14px 7px; margin-bottom:-1px;
-    border: 1px solid var(--rule); border-bottom:none; background: rgba(244,239,226,0.03);
+    border: 1px solid var(--rule); border-bottom:none; background: rgba(233,236,242,0.03);
     border-radius: 5px 5px 0 0; transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   }
   nav.links a:hover{ color: var(--ink); background: var(--paper-raised); border-color: var(--rule); }
@@ -125,17 +124,21 @@
     width:38px; height:34px; cursor:pointer; padding:0; margin-bottom:10px;
     flex-direction:column; align-items:center; justify-content:center; gap:4px;
   }
-  .nav-toggle span{ width:18px; height:2px; background:var(--ink); display:block; }
+  .nav-toggle span{ width:18px; height:2px; background:var(--ink); display:block; transition: transform 0.2s ease, opacity 0.2s ease; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1){ transform: translateY(6px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2){ opacity:0; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
 
   @media (max-width: 720px){
     nav.links{
       position:absolute; top:100%; left:0; right:0;
       background: var(--paper); border-bottom:1px solid var(--rule);
-      flex-direction:column; gap:0; padding: 8px 0;
-      display:none;
+      flex-direction:column; gap:0; padding: 0;
+      display:flex; max-height:0; overflow:hidden; opacity:0;
+      transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
     }
-    nav.links.open{ display:flex; }
-    nav.links a{ padding: 12px 28px; border-top:1px solid var(--rule); }
+    nav.links.open{ max-height:320px; opacity:1; padding: 8px 0; }
+    nav.links a{ padding: 12px 28px; border-top:1px solid var(--rule); border-radius:0; margin-bottom:0; }
     .nav-toggle{ display:flex; }
   }
 
@@ -179,7 +182,7 @@
     display:inline-block; border: 1px solid transparent;
   }
   .btn-primary{ background: var(--ink); color: var(--paper); }
-  .btn-primary:hover{ background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover{ background: var(--accent); }
   .btn-ghost{ border-color: var(--ink); color: var(--ink); }
   .btn-ghost:hover{ border-color: var(--accent); color: var(--accent); }
 
@@ -198,14 +201,35 @@
   .stat-row{
     display:flex; align-items:baseline; gap:14px;
     padding: 16px 18px; border-bottom: 1px solid var(--rule);
+    border-left: 2px solid transparent; margin-left:-2px;
+    transition: background-color 0.15s ease, border-left-color 0.15s ease;
   }
   .stat-row:last-child{ border-bottom:none; }
+  .stat-row:hover{ background: var(--accent-soft); border-left-color: var(--accent); }
+  .stat-row:hover .cell-ref{ color: var(--accent); }
   .cell-ref{
     font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
-    width: 24px; flex-shrink:0;
+    width: 24px; flex-shrink:0; transition: color 0.15s ease;
   }
   .stat-num{ font-family: var(--serif); font-weight:600; font-size: 22px; color: var(--ink); }
   .stat-label{ font-size: 13px; color: var(--ink-soft); }
+
+  /* ---------- SCROLL PROGRESS ---------- */
+  .progress-bar{
+    position: fixed; top:0; left:0; height:2px; width:0%;
+    background: var(--accent); z-index: 60; transition: width 0.1s linear;
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  /* Visible by default — content must never depend on JS to be readable.
+     Animation only applies once html.js-ready confirms scripting works. */
+  .reveal{ opacity:1; transform:none; }
+  html.js-ready .reveal{ opacity:0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  html.js-ready .reveal.in-view{ opacity:1; transform:none; }
+  .stagger > *{ transition-delay: calc(var(--i, 0) * 70ms); }
+  @media (prefers-reduced-motion: reduce){
+    html.js-ready .reveal, html.js-ready .stagger > *{ opacity:1 !important; transform:none !important; transition:none !important; }
+  }
 
   /* ---------- SECTIONS ---------- */
   section{ padding: 56px 0; border-top: 1px solid var(--rule); }
@@ -368,6 +392,7 @@
 </head>
 <body>
 
+<div class="progress-bar" id="progressBar"></div>
 <a class="skip-link" href="#top">Skip to content</a>
 
 <header class="site">
@@ -418,8 +443,8 @@
   <!-- ============ ABOUT + EDUCATION ============ -->
   <section id="about">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B1</span>About</h2>
-      <div class="about-grid">
+      <h2 class="section-title reveal"><span class="section-ref">B1</span>About</h2>
+      <div class="about-grid reveal">
         <picture>
             <source srcset="assets/img/mohamed-atia.webp" type="image/webp">
             <img class="about-photo" src="assets/img/mohamed-atia.jpg" alt="Mohamed Atia"
@@ -448,25 +473,25 @@
   <!-- ============ SKILLS ============ -->
   <section id="skills">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B2</span>Skills &amp; tools</h2>
-      <div class="skills-grid">
-        <div class="skill-cell">
+      <h2 class="section-title reveal"><span class="section-ref">B2</span>Skills &amp; tools</h2>
+      <div class="skills-grid stagger">
+        <div class="skill-cell reveal" style="--i:0">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5 3 12l6 7"/><path d="M15 5l6 7-6 7"/></svg>Programming &amp; analytics</h3>
           <p>Python, Pandas, SQL, exploratory data analysis, statistical analysis, data cleaning, feature engineering</p>
         </div>
-        <div class="skill-cell">
+        <div class="skill-cell reveal" style="--i:1">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>BI &amp; visualization</h3>
           <p>Microsoft Power BI (Power Query, DAX, data modeling), Tableau, data storytelling, KPI reporting</p>
         </div>
-        <div class="skill-cell">
+        <div class="skill-cell reveal" style="--i:2">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7.5" ry="2.6"/><path d="M4.5 6v6c0 1.4 3.4 2.6 7.5 2.6s7.5-1.2 7.5-2.6V6"/><path d="M4.5 12v6c0 1.4 3.4 2.6 7.5 2.6s7.5-1.2 7.5-2.6v-6"/></svg>Data engineering</h3>
           <p>SQL joins, common table expressions, stored procedures, views, database design</p>
         </div>
-        <div class="skill-cell">
+        <div class="skill-cell reveal" style="--i:3">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="11" rx="2"/><path d="M8 7.5V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5"/><path d="M3.5 12.5h17"/></svg>Business &amp; AI</h3>
           <p>Accounting, financial reporting, data governance, generative AI, large language models (LLMs), prompt engineering</p>
         </div>
-        <div class="skill-cell">
+        <div class="skill-cell reveal" style="--i:4">
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v4M7 17v4M12 3v18M17 3v4M17 17v4"/><rect x="4" y="7" width="6" height="10" rx="1.5"/><rect x="14" y="7" width="6" height="10" rx="1.5"/></svg>Tools &amp; platforms</h3>
           <p>Git, GitHub, Jupyter Notebook, Microsoft Excel, Microsoft 365, Google Sheets</p>
         </div>
@@ -477,9 +502,9 @@
   <!-- ============ WORK EXPERIENCE ============ -->
   <section id="experience">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B3</span>Work experience</h2>
+      <h2 class="section-title reveal"><span class="section-ref">B3</span>Work experience</h2>
 
-      <div class="job">
+      <div class="job reveal" style="--i:0">
         <div class="job-head">
           <h3>Data Analyst Trainee — DEPI Round 5</h3>
           <span>Jul 2026 – Present</span>
@@ -494,7 +519,7 @@
         </ul>
       </div>
 
-      <div class="job">
+      <div class="job reveal" style="--i:1">
         <div class="job-head">
           <h3>Internship Trainee — CIB Summer Internship Program</h3>
           <span>Sep – Nov 2024</span>
@@ -511,9 +536,9 @@
   <!-- ============ OFFERED SERVICES ============ -->
   <section id="services">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B4</span>What I offer</h2>
+      <h2 class="section-title reveal"><span class="section-ref">B4</span>What I offer</h2>
 
-      <div class="service-row">
+      <div class="service-row reveal" style="--i:0">
         <div>
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V3"/><path d="M12 12v9"/><path d="M8 21h8"/></svg>Data cleaning &amp; pipelines</h3>
           <span class="service-tag">Python · Pandas</span>
@@ -521,7 +546,7 @@
         <p>Messy spreadsheets, inconsistent formats, missing values, duplicate rows. I build reusable pipelines that clean your data once and keep it clean, with proper handling for the edge cases that break a one-off script.</p>
       </div>
 
-      <div class="service-row">
+      <div class="service-row reveal" style="--i:1">
         <div>
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M8 10v6M12 7v9M16 13v3"/></svg>Dashboards &amp; reporting</h3>
           <span class="service-tag">Power BI · Tableau</span>
@@ -529,7 +554,7 @@
         <p>Dashboards that surface the numbers that actually matter to your business, plus automated KPI reporting so you're not rebuilding the same report by hand every month.</p>
       </div>
 
-      <div class="service-row">
+      <div class="service-row reveal" style="--i:2">
         <div>
           <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>Analysis &amp; insight</h3>
           <span class="service-tag">SQL · Statistics</span>
@@ -542,16 +567,16 @@
   <!-- ============ PROJECTS ============ -->
   <section id="projects">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B5</span>Featured project</h2>
-      <div class="project-card">
+      <h2 class="section-title reveal"><span class="section-ref">B5</span>Featured project</h2>
+      <div class="project-card reveal">
         <h3>Superstore Retail Analytics</h3>
         <p class="project-sub">An end-to-end Python pipeline that turned 9,994 raw retail transactions into $284K in identified profit drivers and a pricing recommendation for three loss-making sub-categories.</p>
 
-        <div class="metrics">
-          <div class="metric"><div class="num">$2.29M</div><div class="lab">total sales analyzed</div></div>
-          <div class="metric"><div class="num">$284K</div><div class="lab">total profit, 12.4% margin</div></div>
-          <div class="metric"><div class="num">9,994</div><div class="lab">orders, 21 columns</div></div>
-          <div class="metric"><div class="num">11</div><div class="lab">visualizations + 1 report</div></div>
+        <div class="metrics stagger">
+          <div class="metric reveal" style="--i:0"><div class="num">$2.29M</div><div class="lab">total sales analyzed</div></div>
+          <div class="metric reveal" style="--i:1"><div class="num">$284K</div><div class="lab">total profit, 12.4% margin</div></div>
+          <div class="metric reveal" style="--i:2"><div class="num">9,994</div><div class="lab">orders, 21 columns</div></div>
+          <div class="metric reveal" style="--i:3"><div class="num">11</div><div class="lab">visualizations + 1 report</div></div>
         </div>
 
         <div class="shot-frame">
@@ -585,8 +610,8 @@
   <!-- ============ ACHIEVEMENTS ============ -->
   <section id="achievements">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B6</span>Achievements &amp; certifications</h2>
-      <div class="chip-row">
+      <h2 class="section-title reveal"><span class="section-ref">B6</span>Achievements &amp; certifications</h2>
+      <div class="chip-row reveal">
         <span class="chip highlight"><img class="chip-logo" src="assets/logos/depi.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">DEPI Round 5 — national scholarship selection</span>
         <span class="chip"><img class="chip-logo" src="assets/logos/ibm-data-fundamentals.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">IBM Data Fundamentals, IBM SkillsBuild</span>
         <span class="chip"><img class="chip-logo" src="assets/logos/datacamp-sql.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">Associate Data Engineer in SQL, DataCamp</span>
@@ -594,7 +619,7 @@
         <span class="chip"><img class="chip-logo" src="assets/logos/datacamp-data-literacy.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">Data Literacy Certificate, DataCamp</span>
         <span class="chip"><img class="chip-logo" src="assets/logos/mckinsey-forward.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">McKinsey Forward Program</span>
       </div>
-      <div class="chip-row" style="margin-top:12px;">
+      <div class="chip-row reveal" style="margin-top:12px;">
         <span class="chip"><img class="chip-logo" src="assets/logos/zoho-books.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">Zoho Books Basic to Advance, Udemy</span>
         <span class="chip"><img class="chip-logo" src="assets/logos/ubuntu-linux.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">Ubuntu Linux Essentials, MaharaTech/ITI</span>
         <span class="chip"><img class="chip-logo" src="assets/logos/ai-for-everyone.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">AI for Everyone, MaharaTech/ITI</span>
@@ -602,7 +627,7 @@
         <span class="chip"><img class="chip-logo" src="assets/logos/sas-data-literacy.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">Data Literacy in Practice, SAS</span>
         <span class="chip"><img class="chip-logo" src="assets/logos/ef-set.jpg" alt="" width="18" height="18" loading="lazy" decoding="async">EF SET C1 English, EF SET</span>
       </div>
-      <div class="chip-row" style="margin-top:12px;">
+      <div class="chip-row reveal" style="margin-top:12px;">
         <span class="chip">HSBC Job Simulation, Forage</span>
         <span class="chip">Financial Literacy for Youth, Egyptian Banking Institute</span>
         <span class="chip">Digital Literacy &amp; Productivity, LinkedIn Learning</span>
@@ -618,8 +643,8 @@
   <!-- ============ TESTIMONIALS ============ -->
   <section id="testimonials">
     <div class="wrap">
-      <h2 class="section-title"><span class="section-ref">B7</span>Testimonials</h2>
-      <div class="empty-state">
+      <h2 class="section-title reveal"><span class="section-ref">B7</span>Testimonials</h2>
+      <div class="empty-state reveal">
         <p class="lead">This section is still empty — on purpose.</p>
         <p>I'd rather leave it blank than fill it with something that isn't real. If we work together, I'll ask if you're willing to leave a few lines here.</p>
       </div>
@@ -628,9 +653,9 @@
 
   <!-- ============ CONTACT / CTA ============ -->
   <section id="contact">
-    <div class="wrap contact-grid">
+    <div class="wrap contact-grid reveal">
       <div>
-        <h2 class="section-title"><span class="section-ref">B8</span>Let's work together</h2>
+        <h2 class="section-title reveal"><span class="section-ref">B8</span>Let's work together</h2>
         <p style="color:var(--ink-soft); max-width:48ch; margin-top:-14px;">If you need a data set turned into an actual answer, or a dashboard built and kept up to date, send me a message — I usually reply within a day.</p>
         <p class="formula">=SUM( your data , my analysis ) → a decision you can trust</p>
       </div>
@@ -681,6 +706,43 @@
       if (visible.length) setActive(visible[0].target.id);
     }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
     sections.forEach(s => observer.observe(s));
+  }
+
+  // Scroll progress bar
+  const progressBar = document.getElementById('progressBar');
+  const updateProgress = () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const max = h.scrollHeight - h.clientHeight;
+    progressBar.style.width = max > 0 ? `${(scrolled / max) * 100}%` : '0%';
+  };
+  document.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // Reveal-on-scroll for cards and section titles.
+  // Safety-first: the page must render fully readable even if this fails.
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && revealEls.length) {
+    document.documentElement.classList.add('js-ready');
+    let revealObserver;
+    try {
+      revealObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+      revealEls.forEach(el => revealObserver.observe(el));
+    } catch (e) {
+      document.documentElement.classList.remove('js-ready');
+    }
+    // Hard safety net: whatever happens with the observer, never leave
+    // content invisible for more than a couple of seconds.
+    setTimeout(() => {
+      revealEls.forEach(el => el.classList.add('in-view'));
+    }, 2500);
   }
 </script>
 
