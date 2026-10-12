@@ -455,7 +455,7 @@ html[data-theme="light"] .wallpaper .blob{ opacity:.15; }
 
 /* full-screen, closer content */
 header.site + main > section, main > section{
-  min-height:100svh; display:flex; flex-direction:column; justify-content:center;
+  min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center;
   padding:88px 0; scroll-margin-top:52px;
 }
 main > section > .wrap{ width:100%; }
@@ -586,7 +586,7 @@ html.js-ready blockquote.reveal{ --from: translateX(-48px) scale(.97); }
 
 /* ===== Guided scrolling: sections snap into place, dot navigation, scroll cue ===== */
 header.site + main > section.hero{ padding-top:44px; padding-bottom:64px; }
-header.site + main > section{ scroll-margin-top:52px; min-height:calc(100svh - 52px); }
+header.site + main > section{ scroll-margin-top:52px; min-height:calc(100vh - 52px); min-height:calc(100svh - 52px); }
 
 .dot-nav{ position:fixed; right:20px; top:50%; transform:translateY(-50%); z-index:45; display:flex; flex-direction:column; gap:6px; }
 .dot-nav button{
@@ -678,7 +678,23 @@ html.story .project-card > .shot-frame .project-shot{ max-height:300px; width:au
 html, body{ overflow-anchor:none; }
 .story-track.released{ height:auto !important; }
 .story-track.released .story-stage{ position:relative; top:auto; height:auto !important; overflow:visible; display:flex; align-items:center; }
+/* ===== Accessibility + robustness: reduced motion, print, no-JS ===== */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto !important; }
+  html.story .story-item, html.js-ready .reveal, html.js-ready .reveal.in-view{ opacity:1 !important; transform:none !important; animation:none !important; transition:none !important; pointer-events:auto !important; }
+  html.story .story-inner{ transform:none !important; }
+  .scroll-cue{ animation:none !important; }
+}
+@media print{
+  html.story .story-item, html.js-ready .reveal{ opacity:1 !important; transform:none !important; animation:none !important; transition:none !important; pointer-events:auto !important; }
+  html.story .story-track{ height:auto !important; }
+  html.story .story-stage{ position:relative !important; top:auto !important; height:auto !important; overflow:visible !important; }
+  html.story .story-inner{ transform:none !important; }
+  .dot-nav, .scroll-cue, .progress-bar{ display:none !important; }
+  header.site + main > section{ min-height:0 !important; }
+}
 </style>
+<noscript><style>.reveal,.story-item{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
   <div class="wallpaper" aria-hidden="true"><div class="grid"></div><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
@@ -1057,10 +1073,11 @@ html, body{ overflow-anchor:none; }
     const open = links.classList.toggle('open');
     toggle.setAttribute('aria-expanded', open);
   });
-  Array.from(links.querySelectorAll('a')).forEach(a => a.addEventListener('click', () => {
-    links.classList.remove('open');
-    toggle.setAttribute('aria-expanded', 'false');
-  }));
+  const closeMenu = () => { links.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); };
+  Array.from(links.querySelectorAll('a')).forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && links.classList.contains('open')) { closeMenu(); toggle.focus(); } });
+  document.addEventListener('click', (e) => { if (links.classList.contains('open') && !links.contains(e.target) && !toggle.contains(e.target)) closeMenu(); });
+  addEventListener('resize', () => { if (innerWidth > 720) closeMenu(); });
 
   // Highlight the current section's sheet tab as you scroll, like the
   // active sheet in a spreadsheet workbook.
@@ -1110,6 +1127,15 @@ document.querySelectorAll('.job').forEach(job => {
 });
 
 
+// Instant scroll helper: 'instant' is not understood by every browser, and 'auto' would inherit the CSS smooth scrolling.
+const jumpBy = (top) => {
+  try { scrollBy({ top, behavior: 'instant' }); return; } catch (e) {}
+  const root = document.documentElement, prev = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto'; window.scrollBy(0, top); root.style.scrollBehavior = prev;
+};
+const jumpTo = (top) => jumpBy(top - scrollY);
+const reducedMQ = matchMedia('(prefers-reduced-motion: reduce)');
+
 // Shared scroll state (used by the story, the assist glide and the navigation below)
 let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollDir = 'down';
 { let ly = scrollY; addEventListener('scroll', () => { if (scrollY !== ly) scrollDir = scrollY > ly ? 'down' : 'up'; ly = scrollY; }, { passive: true }); }
@@ -1120,7 +1146,10 @@ let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollD
 // item has no room left, the stage waits for another scroll, then pans down and the next items pop in.
 // Nothing here intercepts the wheel / touchpad. Touch, narrow and reduced-motion visitors keep the normal page.
 (() => {
-  if (!matchMedia('(pointer:fine) and (min-width:901px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const storyMQ = matchMedia('(pointer:fine) and (min-width:901px)');
+  const supported = window.CSS && CSS.supports && CSS.supports('position', 'sticky') && CSS.supports('overflow-y', 'clip');
+  if (!supported || !storyMQ.matches || reducedMQ.matches) return;
+  try {
   document.documentElement.classList.add('story');
   const HEADER = 52, TOP = 16, BOT = 24;
   const $$ = (root, sel) => Array.from(root.querySelectorAll(sel));
@@ -1210,7 +1239,7 @@ let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollD
     change();
     if (!get) return;
     const diff = get() - before;
-    if (Math.abs(diff) > 1) scrollBy({ top: diff, behavior: 'instant' });
+    if (Math.abs(diff) > 1) jumpBy(diff);
   }
   // Show everything in the track and let it scroll like normal content, without moving anything on screen.
   function release(t) {
@@ -1296,18 +1325,35 @@ let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollD
         const before = t.inner.getBoundingClientRect().top;
         t.free = det.open; t.track.classList.toggle('free', det.open); if (det.open) release(t); size(t); update();
         const after = t.inner.getBoundingClientRect().top;
-        if (Math.abs(after - before) > 1) scrollBy({ top: after - before, behavior: 'instant' });
+        if (Math.abs(after - before) > 1) jumpBy(after - before);
       });
     });
     if (any) { s.classList.add('story-flow'); $1(s, '.project-stack').style.gap = '0'; } })();
 
   if (!tracks.length) { document.documentElement.classList.remove('story'); return; }
   storyApi = { tracks, release, HEADER };
+  // If the visitor turns on reduced motion, shrinks the window, or rotates / switches input mid-visit, drop the pinned
+  // stages and let the page scroll normally with everything visible.
+  const teardown = () => {
+    if (storyMQ.matches && !reducedMQ.matches) return;
+    tracks.forEach(release);
+    document.documentElement.classList.remove('story');
+  };
+  [storyMQ, reducedMQ].forEach(mq => mq.addEventListener ? mq.addEventListener('change', teardown) : mq.addListener(teardown));
   tracks.forEach(size); update();
   let raf = 0;
   addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
   let rt = 0;
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { M = metrics(); tracks.forEach(t => { if (!t.free) size(t); }); update(); }, 120); });
+  addEventListener('orientationchange', () => setTimeout(() => { M = metrics(); tracks.forEach(t => { if (!t.free) size(t); }); update(); }, 250));
+  // Failsafe: anything that is still hidden once the visitor reaches it (find-in-page, keyboard jumps) is revealed.
+  addEventListener('hashchange', () => tracks.forEach(release));
+  } catch (err) {   // if anything above fails, never leave content hidden
+    console.warn('Story mode disabled:', err);
+    document.querySelectorAll('.story-item').forEach(el => el.classList.add('shown'));
+    document.querySelectorAll('.story-track').forEach(t => { t.classList.add('released'); t.style.height = ''; });
+    document.documentElement.classList.remove('story');
+  }
 })();
 
 // Scroll assist: when an item pops in partly below the fold, glide just far enough to show it fully
@@ -1319,7 +1365,7 @@ let userGesture = false, assistLock = false, assistTimer = 0;
 function runAssist() {
   const list = Array.from(pendingAssist); pendingAssist.clear();
   const gesture = userGesture;
-  if (assistLock || navigating || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (assistLock || navigating || reducedMQ.matches) return;
   const vh = innerHeight; let best = null, by = 0;
   list.forEach(el => { const r = el.getBoundingClientRect(); if (!best || r.bottom > best.bottom) best = r; });
   if (best) {
@@ -1362,10 +1408,13 @@ if ('IntersectionObserver' in window && revealEls.length) {
   } catch (e) {
     document.documentElement.classList.remove('js-ready');
   }
-  // Safety net: if the observer never fires at all, show everything.
+  // Safety nets: if the observer never fires, or the visitor prefers reduced motion, show everything.
   setTimeout(() => {
     if (!seen) revealEls.forEach(el => el.classList.add('in-view'));
   }, 2500);
+  const showAll = () => { if (reducedMQ.matches) revealEls.forEach(el => el.classList.add('in-view')); };
+  showAll();
+  reducedMQ.addEventListener ? reducedMQ.addEventListener('change', showAll) : reducedMQ.addListener(showAll);
 }
 
 // Navigation: every button / link that points at a section jumps straight to it.
@@ -1380,15 +1429,15 @@ function goTo(id) {
     if (!t.released && (t.track.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) storyApi.release(t);
   });
   const tok = ++navTok; navigating = true; assistLock = false; pendingAssist.clear(); clearTimeout(assistTimer);
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  scrollTo({ top: sectionTargetY(el), behavior: reduced ? 'instant' : 'smooth' });
+  const reduced = reducedMQ.matches;
+  if (reduced) jumpTo(sectionTargetY(el)); else { try { scrollTo({ top: sectionTargetY(el), behavior: 'smooth' }); } catch (err) { scrollTo(0, sectionTargetY(el)); } }
   let last = -1, still = 0, fixes = 0;
   const poll = setInterval(() => {
     if (tok !== navTok) { clearInterval(poll); return; }           // the visitor took over, or another jump started
     still = Math.abs(scrollY - last) < 1 ? still + 1 : 0; last = scrollY;
     if (still < 3) return;
     const y = sectionTargetY(el);
-    if (Math.abs(scrollY - y) > 3 && fixes++ < 3) { scrollTo({ top: y, behavior: 'instant' }); still = 0; return; }
+    if (Math.abs(scrollY - y) > 3 && fixes++ < 3) { jumpTo(y); still = 0; return; }
     clearInterval(poll); navigating = false;
   }, 90);
 }
@@ -1423,7 +1472,7 @@ if (location.hash.length > 1 && document.getElementById(location.hash.slice(1)))
   document.body.appendChild(nav);
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('active', secs[i] === e.target)); });
+      entries.forEach(e => { if (e.isIntersecting) dots.forEach((d, i) => { const on = secs[i] === e.target; d.classList.toggle('active', on); if (on) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); }); });
     }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
     secs.forEach(sec => io.observe(sec));
   }
