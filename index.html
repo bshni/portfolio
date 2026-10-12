@@ -673,6 +673,11 @@ html.story .project-card > .shot-frame .project-shot{ max-height:300px; width:au
   html.js-ready .reveal{ --from: translateY(26px) !important; }
   html.js-ready .reveal.in-view{ animation-duration:.55s; animation-delay:calc(var(--i,0) * 50ms); }
 }
+
+/* released stories: once everything is shown (or you scroll back up) the section stops being pinned and scrolls like a normal page */
+html, body{ overflow-anchor:none; }
+.story-track.released{ height:auto !important; }
+.story-track.released .story-stage{ position:relative; top:auto; }
 </style>
 </head>
 <body>
@@ -1135,20 +1140,36 @@ document.querySelectorAll('.job').forEach(job => {
     t.stage.style.height = M.avail + 'px';
     const fit = Math.min(1, Math.max(MIN_FIT, (M.avail - PAD) / t.inner.offsetHeight));
     t.inner.style.setProperty('--fit', fit.toFixed(3));
-    t.track.style.height = (M.avail + (t.groups.length - 1) * M.step + 0.3 * M.step) + 'px';
+    if (!t.released) t.track.style.height = (M.avail + (t.groups.length - 1) * M.step) + 'px';
+  }
+  let lastY = scrollY;
+  // Show everything in the track and let it scroll like normal content, without moving anything on screen.
+  function release(t) {
+    if (t.released) return;
+    const before = t.stage.getBoundingClientRect().top;
+    t.released = true;
+    t.groups.forEach(g => g.forEach(el => el.classList.add('shown')));
+    t.shown = t.groups.length;
+    t.track.classList.add('released'); t.track.style.height = '';
+    const after = t.stage.getBoundingClientRect().top;
+    if (Math.abs(after - before) > 1) scrollBy({ top: after - before, behavior: 'instant' });
   }
   function update() {
-    tracks.forEach(t => {
-      let count = t.groups.length;
-      if (!t.free) {
-        const d = HEADER - t.track.getBoundingClientRect().top;          // how far past the pin point we are
-        count = Math.max(0, Math.min(t.groups.length, Math.floor(d / M.step + 0.6) + 1));
-      }
-      if (count !== t.shown) {
-        t.groups.forEach((g, gi) => g.forEach(el => el.classList.toggle('shown', gi < count)));
+    const up = scrollY < lastY;
+    for (const t of tracks) {
+      if (t.released) continue;
+      const rect = t.track.getBoundingClientRect();
+      const n = t.groups.length, d = HEADER - rect.top;                 // d: how far past the pin point we are
+      if (rect.bottom < HEADER - 60) { release(t); continue; }           // already scrolled past (e.g. jumped with the dots)
+      const count = Math.max(0, Math.min(n, Math.floor(d / M.step + 0.6) + 1));
+      if (up && d > 0 && count > 0) { release(t); continue; }            // heading back up: show it all, then scroll away freely
+      if (count >= n) { release(t); continue; }                          // last item shown: release
+      if (count > t.shown) {
+        t.groups.forEach((g, gi) => { if (gi < count) g.forEach(el => el.classList.add('shown')); });
         t.shown = count;
       }
-    });
+    }
+    lastY = scrollY;
   }
 
   const sec = (id) => document.getElementById(id);
@@ -1198,7 +1219,7 @@ document.querySelectorAll('.job').forEach(job => {
       const det = $1(card, 'details.case-study');
       if (det) det.addEventListener('toggle', () => {           // an opened case study is taller than the screen: let it scroll normally
         const before = t.stage.getBoundingClientRect().top;
-        t.free = det.open; t.track.classList.toggle('free', det.open); size(t); update();
+        t.free = det.open; t.track.classList.toggle('free', det.open); if (det.open) release(t); size(t); update();
         const after = t.stage.getBoundingClientRect().top;
         if (Math.abs(after - before) > 1) scrollBy({ top: after - before, behavior: 'instant' });
       });
@@ -1223,9 +1244,13 @@ function runAssist() {
   if (!list.length || assistLock || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const vh = innerHeight; let best = null;
   list.forEach(el => { const r = el.getBoundingClientRect(); if (!best || r.bottom > best.bottom) best = r; });
-  if (best && best.bottom > vh - 16 && best.height <= vh - 52 - 40 && best.top > 52) {
+  if (!best) return;
+  let by = 0;
+  if (best.height <= vh - 52 - 40) { if (best.bottom > vh - 16 && best.top > 52) by = best.bottom - vh + 36; }   // fits: show all of it
+  else if (best.top > vh * 0.55) by = best.top - 52 - 24;                                                         // tall: bring its start into view
+  if (by > 8) {
     assistLock = true; userGesture = false;
-    scrollBy({ top: best.bottom - vh + 36, behavior: 'smooth' });
+    scrollBy({ top: by, behavior: 'smooth' });
     setTimeout(() => { assistLock = false; }, 1000);
   }
 }
