@@ -642,6 +642,37 @@ html.story .contact-list li.story-item{ --from:scale(.72) translateY(22px); }
 html.story .section-title.story-item{ --from:translateX(-48px); }
 html.story blockquote.story-item{ --from:translateX(-48px) scale(.97); }
 html.story .project-card > .shot-frame .project-shot{ max-height:300px; width:auto; max-width:100%; margin:0 auto; display:block; }
+
+/* ===== Phone fixes: no sideways overflow, lighter rendering ===== */
+@media (max-width:900px){
+  .contact-grid, .about-grid, .skills-grid, .hero-grid{ grid-template-columns:minmax(0,1fr); }
+  .wrap.contact-grid{ width:calc(100% - 32px); padding:22px; gap:24px; }
+  .contact-grid > *{ min-width:0; }
+  .contact-list li > :not(.k){ flex:1; min-width:0; overflow-wrap:anywhere; }
+  .contact-list .k{ width:84px; flex-shrink:0; }
+  .section-title{ flex-wrap:wrap; }
+  h2.section-title{ overflow-wrap:anywhere; }
+  .hero .formula, .formula{ overflow-wrap:anywhere; }
+}
+@media (pointer:coarse), (max-width:900px){
+  /* the animated glows and frosted-glass blur are too heavy for phones: use a still wallpaper and solid-ish panels */
+  .wallpaper{
+    background:
+      radial-gradient(60% 40% at 8% 0%, rgba(52,211,153,.20), transparent 70%),
+      radial-gradient(55% 40% at 100% 45%, rgba(34,166,211,.16), transparent 70%),
+      radial-gradient(60% 40% at 30% 100%, rgba(79,107,237,.16), transparent 70%),
+      var(--paper);
+  }
+  .wallpaper .blob{ display:none; }
+  .wallpaper .grid{ animation:none; -webkit-mask-image:none; mask-image:none; opacity:.55; }
+  .about-grid, .skills-grid, .job, .service-row, .empty-state, .ledger-row, .wrap.contact-grid,
+  .hero .formula, .project-card, .stat-panel{
+    -webkit-backdrop-filter:none; backdrop-filter:none; background:rgba(20,26,36,.88);
+  }
+  /* simpler, cheaper pop-in on phones */
+  html.js-ready .reveal{ --from: translateY(26px) !important; }
+  html.js-ready .reveal.in-view{ animation-duration:.55s; animation-delay:calc(var(--i,0) * 50ms); }
+}
 </style>
 </head>
 <body>
@@ -1182,6 +1213,24 @@ document.querySelectorAll('.job').forEach(job => {
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { M = metrics(); tracks.forEach(t => { if (!t.free) size(t); }); update(); }, 120); });
 })();
 
+// Scroll assist: when an item pops in partly below the fold, glide just far enough to show it fully
+// once the visitor has stopped scrolling. At most once per scroll gesture, so it never runs away.
+const pendingAssist = new Set();
+let userGesture = false, assistLock = false, assistTimer = 0;
+['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(ev => addEventListener(ev, () => { userGesture = true; }, { passive: true }));
+function runAssist() {
+  const list = Array.from(pendingAssist); pendingAssist.clear();
+  if (!list.length || assistLock || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const vh = innerHeight; let best = null;
+  list.forEach(el => { const r = el.getBoundingClientRect(); if (!best || r.bottom > best.bottom) best = r; });
+  if (best && best.bottom > vh - 16 && best.height <= vh - 52 - 40 && best.top > 52) {
+    assistLock = true; userGesture = false;
+    scrollBy({ top: best.bottom - vh + 36, behavior: 'smooth' });
+    setTimeout(() => { assistLock = false; }, 1000);
+  }
+}
+addEventListener('scroll', () => { if (!pendingAssist.size) return; clearTimeout(assistTimer); assistTimer = setTimeout(runAssist, 240); }, { passive: true });
+
 const revealEls = Array.from(document.querySelectorAll('.reveal'));
 if ('IntersectionObserver' in window && revealEls.length) {
   document.documentElement.classList.add('js-ready');
@@ -1192,10 +1241,11 @@ if ('IntersectionObserver' in window && revealEls.length) {
         if (entry.isIntersecting) {
           seen = true;
           entry.target.classList.add('in-view');
+          if (userGesture) pendingAssist.add(entry.target);
           obs.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    }, { threshold: 0, rootMargin: '0px 0px -70px 0px' });
     revealEls.forEach(el => {
       // once the pop finishes, hand the element back to its normal hover styles
       el.addEventListener('animationend', (e) => {
