@@ -586,10 +586,7 @@ html.js-ready blockquote.reveal{ --from: translateX(-48px) scale(.97); }
 
 /* ===== Guided scrolling: sections snap into place, dot navigation, scroll cue ===== */
 header.site + main > section.hero{ padding-top:44px; padding-bottom:64px; }
-header.site + main > section{ scroll-snap-align:start; scroll-margin-top:52px; min-height:calc(100svh - 52px); }
-footer{ scroll-snap-align:end; }
-/* desktop: guided scrolling is handled in JS; touch screens get a gentle CSS snap */
-@media (pointer:coarse), (max-width:900px){ html{ scroll-snap-type:y proximity; } }
+header.site + main > section{ scroll-margin-top:52px; min-height:calc(100svh - 52px); }
 
 .dot-nav{ position:fixed; right:20px; top:50%; transform:translateY(-50%); z-index:45; display:flex; flex-direction:column; gap:6px; }
 .dot-nav button{
@@ -620,6 +617,31 @@ section.hero{ position:relative; }
 .scroll-cue:hover{ color:var(--accent); }
 @keyframes cue{ 0%,100%{ transform:translate(-50%,0); } 50%{ transform:translate(-50%,7px); } }
 @media (max-height:640px){ .scroll-cue{ display:none; } }
+
+/* ===== Story mode: pinned stage + scroll-driven steps (position:sticky, native scrolling) ===== */
+html.story header.site + main > section.story-sec{ display:block; padding:0; min-height:0; }
+html.story header.site + main > section.story-flow{ display:block; min-height:0; padding:72px 0 0; }
+.story-track{ position:relative; }
+.story-stage{ position:sticky; top:52px; display:flex; align-items:center; }
+.story-inner{ width:100%; transform-origin:center center; transform:scale(var(--fit,1)); }
+.story-track.free{ height:auto !important; }
+.story-track.free .story-stage{ position:relative; top:auto; height:auto !important; padding:24px 0; }
+.story-track.free .story-inner{ transform:none; }
+html.story .story-item{
+  opacity:0; transform:var(--from, translateY(44px) scale(.94));
+  transition: opacity .55s ease, transform .8s var(--spring), border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+  transition-delay: calc(var(--i,0) * 85ms);
+}
+html.story .story-item.shown{ opacity:1; transform:none; }
+html.story .story-item:not(.shown){ pointer-events:none; }
+html.story .job.story-item{ --from:translateX(-60px) scale(.96); }
+html.story .service-row.story-item{ --from:translateX(60px) scale(.96); }
+html.story .job li.story-item{ --from:translateX(-44px) scale(.97); }
+html.story .skill-cell.story-item, html.story .chip.story-item, html.story .metric.story-item,
+html.story .contact-list li.story-item{ --from:scale(.72) translateY(22px); }
+html.story .section-title.story-item{ --from:translateX(-48px); }
+html.story blockquote.story-item{ --from:translateX(-48px) scale(.97); }
+html.story .project-card > .shot-frame .project-shot{ max-height:300px; width:auto; max-width:100%; margin:0 auto; display:block; }
 </style>
 </head>
 <body>
@@ -1051,6 +1073,115 @@ document.querySelectorAll('.job').forEach(job => {
   });
 });
 
+
+// Step-by-step storytelling (desktop). Pattern: a pinned "stage" (position:sticky) inside a tall "track";
+// native scrolling moves through the track and each step reveals one piece of content.
+// Nothing here intercepts the wheel. Touch, narrow and reduced-motion visitors keep the normal page.
+(() => {
+  if (!matchMedia('(pointer:fine) and (min-width:901px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.classList.add('story');
+  const HEADER = 52, MIN_FIT = 0.72, PAD = 16;
+  const $$ = (root, sel) => Array.from(root.querySelectorAll(sel));
+  const $1 = (root, sel) => root.querySelector(sel);
+  const metrics = () => ({ avail: innerHeight - HEADER, step: Math.max(260, Math.min(420, innerHeight * 0.42)) });
+  let M = metrics();
+  const tracks = [];
+
+  function make(content, groups) {
+    groups = groups.map(g => g.filter(Boolean)).filter(g => g.length);
+    if (!groups.length || (M.avail - PAD) < content.offsetHeight * MIN_FIT) return null;   // would not fit: keep the normal layout
+    const track = document.createElement('div'); track.className = 'story-track';
+    const stage = document.createElement('div'); stage.className = 'story-stage';
+    const inner = document.createElement('div'); inner.className = 'story-inner';
+    content.parentNode.insertBefore(track, content);
+    track.appendChild(stage); stage.appendChild(inner); inner.appendChild(content);
+    $$(content, '.reveal').concat(content.classList.contains('reveal') ? [content] : []).forEach(el => el.classList.remove('reveal', 'in-view'));
+    groups.forEach(g => g.forEach((el, i) => { el.classList.remove('reveal', 'in-view'); el.classList.add('story-item'); el.style.setProperty('--i', i); }));
+    const t = { track, stage, inner, groups, shown: -1, free: false };
+    tracks.push(t); size(t); return t;
+  }
+  function size(t) {
+    t.stage.style.height = M.avail + 'px';
+    const fit = Math.min(1, Math.max(MIN_FIT, (M.avail - PAD) / t.inner.offsetHeight));
+    t.inner.style.setProperty('--fit', fit.toFixed(3));
+    t.track.style.height = (M.avail + (t.groups.length - 1) * M.step + 0.3 * M.step) + 'px';
+  }
+  function update() {
+    tracks.forEach(t => {
+      let count = t.groups.length;
+      if (!t.free) {
+        const d = HEADER - t.track.getBoundingClientRect().top;          // how far past the pin point we are
+        count = Math.max(0, Math.min(t.groups.length, Math.floor(d / M.step + 0.6) + 1));
+      }
+      if (count !== t.shown) {
+        t.groups.forEach((g, gi) => g.forEach(el => el.classList.toggle('shown', gi < count)));
+        t.shown = count;
+      }
+    });
+  }
+
+  const sec = (id) => document.getElementById(id);
+  const mark = (id, cls) => { const s = sec(id); if (s) s.classList.add(cls); return s; };
+
+  // About: photo + first paragraph, then each paragraph, the quote, the education row
+  (() => { const s = sec('about'); if (!s) return; const w = $1(s, ':scope > .wrap'), grid = $1(w, '.about-grid');
+    const ps = $$(grid, '.about-text > p');
+    if (make(w, [[$1(w, '.section-title'), grid, $1(grid, '.about-photo'), ps[0]], [ps[1]], [ps[2]], [$1(grid, 'blockquote')], [$1(w, '.ledger-row')]])) s.classList.add('story-sec'); })();
+
+  // Skills: one cell per step
+  (() => { const s = sec('skills'); if (!s) return; const w = $1(s, ':scope > .wrap'), cells = $$(w, '.skill-cell');
+    if (make(w, [[$1(w, '.section-title'), $1(w, '.skills-grid'), cells[0]]].concat(cells.slice(1).map(c => [c])))) s.classList.add('story-sec'); })();
+
+  // Experience: each job appears, then its bullets one by one
+  (() => { const s = sec('experience'); if (!s) return; const w = $1(s, ':scope > .wrap'), groups = [];
+    $$(w, '.job').forEach((job, ji) => {
+      groups.push([ji === 0 ? $1(w, '.section-title') : null, job, $1(job, '.job-head'), $1(job, '.job-org')]);
+      $$(job, 'li').forEach(li => groups.push([li]));
+    });
+    if (make(w, groups)) s.classList.add('story-sec'); })();
+
+  // Services: one row per step
+  (() => { const s = sec('services'); if (!s) return; const w = $1(s, ':scope > .wrap'), rows = $$(w, '.service-row');
+    if (make(w, rows.map((r, i) => i === 0 ? [$1(w, '.section-title'), r] : [r]))) s.classList.add('story-sec'); })();
+
+  // Achievements: one row of chips per step, then the links
+  (() => { const s = sec('achievements'); if (!s) return; const w = $1(s, ':scope > .wrap'), rows = $$(w, '.chip-row');
+    const groups = rows.map(r => $$(r, '.chip')); if (groups[0]) groups[0].unshift($1(w, '.section-title'));
+    groups.push([$1(w, ':scope > p')]);
+    if (make(w, groups)) s.classList.add('story-sec'); })();
+
+  // Testimonials
+  (() => { const s = sec('testimonials'); if (!s) return; const w = $1(s, ':scope > .wrap');
+    if (make(w, [[$1(w, '.section-title'), $1(w, '.empty-state')]])) s.classList.add('story-sec'); })();
+
+  // Contact
+  (() => { const s = sec('contact'); if (!s) return; const w = $1(s, ':scope > .wrap');
+    if (make(w, [[$1(w, '.section-title'), $1(w, 'p')], [$1(w, '.formula'), $1(w, '.cta-row')], $$(w, '.contact-list li')])) s.classList.add('story-sec'); })();
+
+  // Projects: each card is its own pinned story (title, metrics, screenshots, case study, buttons)
+  (() => { const s = sec('projects'); if (!s) return; let any = false;
+    $$(s, '.project-card').forEach(card => {
+      const t = make(card, [[card, $1(card, 'h3'), $1(card, '.project-sub'), $1(card, '.tag-row')], $$(card, '.metrics .metric'),
+        $$(card, '.shot-pair .shot-frame').concat($$(card, ':scope > .shot-frame')), [$1(card, ':scope > .note'), $1(card, 'details.case-study')], [$1(card, '.btn-row')]]);
+      if (!t) return; any = true;
+      const det = $1(card, 'details.case-study');
+      if (det) det.addEventListener('toggle', () => {           // an opened case study is taller than the screen: let it scroll normally
+        const before = t.stage.getBoundingClientRect().top;
+        t.free = det.open; t.track.classList.toggle('free', det.open); size(t); update();
+        const after = t.stage.getBoundingClientRect().top;
+        if (Math.abs(after - before) > 1) scrollBy({ top: after - before, behavior: 'instant' });
+      });
+    });
+    if (any) { s.classList.add('story-flow'); $1(s, '.project-stack').style.gap = '0'; } })();
+
+  if (!tracks.length) { document.documentElement.classList.remove('story'); return; }
+  tracks.forEach(size); update();
+  let raf = 0;
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
+  let rt = 0;
+  addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { M = metrics(); tracks.forEach(t => { if (!t.free) size(t); }); update(); }, 120); });
+})();
+
 const revealEls = Array.from(document.querySelectorAll('.reveal'));
 if ('IntersectionObserver' in window && revealEls.length) {
   document.documentElement.classList.add('js-ready');
@@ -1108,43 +1239,7 @@ if ('IntersectionObserver' in window && revealEls.length) {
   }
 })();
 
-// Guided scrolling (desktop): one scroll gesture glides to the next section.
-// Tall sections still scroll normally until you reach their edge, then the next gesture moves on.
-(() => {
-  const fine = window.matchMedia('(pointer:fine) and (min-width:901px)');
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const secs = Array.from(document.querySelectorAll('main > section'));
-  if (!secs.length) return;
-  const HEADER = 52, TOL = 88;
-  let lockUntil = 0, lastWheel = 0, jumpedAt = 0;
-  const top = (el) => el.getBoundingClientRect().top + window.scrollY;
-  const goTo = (y) => {
-    const now = performance.now();
-    lockUntil = now + 900; jumpedAt = now;
-    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-  };
-  window.addEventListener('wheel', (e) => {
-    if (!fine.matches || reduce.matches || e.ctrlKey || Math.abs(e.deltaY) < 4 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-    const now = performance.now();
-    const gap = now - lastWheel; lastWheel = now;
-    // ignore the tail of the previous gesture (trackpad momentum) and any glide in progress
-    if (now < lockUntil || (now - jumpedAt < 2200 && gap < 90)) { e.preventDefault(); lockUntil = Math.max(lockUntil, now); return; }
-    const y = window.scrollY, vh = window.innerHeight;
-    const probe = y + HEADER + (vh - HEADER) / 2;
-    const i = secs.findIndex(sec => { const t = top(sec); return probe >= t && probe < t + sec.offsetHeight; });
-    if (i < 0) return;
-    const t = top(secs[i]), b = t + secs[i].offsetHeight;
-    if (e.deltaY > 0) {
-      if (b - (y + vh) > TOL || !secs[i + 1]) return;          // more of this section below, or last section
-      e.preventDefault(); goTo(top(secs[i + 1]) - HEADER);
-    } else {
-      if ((y + HEADER) - t > TOL || !secs[i - 1]) return;      // more of this section above, or first section
-      e.preventDefault();
-      const p = secs[i - 1], pt = top(p), pb = pt + p.offsetHeight;
-      goTo(pb - pt > vh - HEADER + TOL ? pb - vh : pt - HEADER); // tall section above: land on its bottom
-    }
-  }, { passive: false });
-})();
+
 </script>
 
 </body>
