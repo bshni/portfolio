@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mohamed Atia — Data Analyst Portfolio | Python, SQL, Power BI, Tableau</title>
-<meta name="description" content="Portfolio of Mohamed Atia, a data analyst trainee in Alexandria, Egypt with an accounting foundation. Python and SQL data cleaning, statistical analysis, and Power BI / Tableau dashboards that turn raw data into decisions." />
+<title>Mohamed Rashed — Data Analyst Portfolio | Python, SQL, Power BI, Tableau</title>
+<meta name="description" content="Portfolio of Mohamed Rashed, a data analyst trainee in Alexandria, Egypt with an accounting foundation. Python and SQL data cleaning, statistical analysis, and Power BI / Tableau dashboards that turn raw data into decisions." />
 <link rel="canonical" href="https://bshni.github.io/portfolio/" />
 <meta name="theme-color" content="#10141B" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
 <!-- Open Graph / WhatsApp, Facebook, Slack, Discord preview -->
-<meta property="og:title" content="Mohamed Atia — Data Analyst" />
+<meta property="og:title" content="Mohamed Rashed — Data Analyst" />
 <meta property="og:description" content="Turning raw data into decisions you can trust. Projects, skills, and experience." />
 <meta property="og:image" content="https://bshni.github.io/portfolio/preview.png" />
 <meta property="og:url" content="https://bshni.github.io/portfolio/" />
@@ -18,7 +18,7 @@
 
 <!-- Twitter/X card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Mohamed Atia — Data Analyst" />
+<meta name="twitter:title" content="Mohamed Rashed — Data Analyst" />
 <meta name="twitter:description" content="Turning raw data into decisions you can trust. Projects, skills, and experience." />
 <meta name="twitter:image" content="https://bshni.github.io/portfolio/preview.png" />
 
@@ -27,7 +27,7 @@
 {
   "@context": "https://schema.org",
   "@type": "Person",
-  "name": "Mohamed Atia",
+  "name": "Mohamed Rashed",
   "jobTitle": "Data Analyst",
   "url": "https://bshni.github.io/portfolio/",
   "image": "https://bshni.github.io/portfolio/assets/img/mohamed-atia.jpg",
@@ -688,7 +688,7 @@ html, body{ overflow-anchor:none; }
 
 <header class="site">
   <div class="nav-row">
-    <a class="brand" href="#top">M<span>.</span>Atia</a>
+    <a class="brand" href="#top">M<span>.</span>Rashed</a>
     <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks">
       <span></span><span></span><span></span>
     </button>
@@ -711,7 +711,7 @@ html, body{ overflow-anchor:none; }
       <div>
         <div class="fx-tag">fx&nbsp;=&nbsp;<em>raw data</em>&nbsp;→&nbsp;clear decisions</div>
         <h1 class="headline">I make messy spreadsheets tell the truth.</h1>
-        <p class="sub">Mohamed Atia — Data Analyst trainee with an accounting foundation. I clean, model, and visualize business data in Python, SQL, Power BI, and Tableau, so the numbers point straight to a decision.</p>
+        <p class="sub">Mohamed Rashed — Data Analyst trainee with an accounting foundation. I clean, model, and visualize business data in Python, SQL, Power BI, and Tableau, so the numbers point straight to a decision.</p>
         <p class="formula" style="margin-bottom:30px;">I help small businesses and teams turn raw, messy data into decisions they can trust — through Python/SQL data cleaning, statistical analysis, and Power BI/Tableau dashboards.</p>
       </div>
       <div class="hero-side">
@@ -742,7 +742,7 @@ html, body{ overflow-anchor:none; }
       <div class="about-grid">
         <picture>
             <source srcset="assets/img/mohamed-atia.webp" type="image/webp">
-            <img class="about-photo" src="assets/img/mohamed-atia.jpg" alt="Mohamed Atia"
+            <img class="about-photo" src="assets/img/mohamed-atia.jpg" alt="Mohamed Rashed"
                  width="320" height="320" loading="lazy" decoding="async">
           </picture>
         <div class="about-text">
@@ -1046,7 +1046,7 @@ html, body{ overflow-anchor:none; }
 
 <footer>
   <div class="wrap">
-    <p>Mohamed Atia — Data Analyst</p>
+    <p>Mohamed Rashed — Data Analyst</p>
   </div>
 </footer>
 
@@ -1165,6 +1165,7 @@ let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollD
       pans.push(p); counts.push(cnt(p));
     }
     t.pans = pans; t.counts = counts;
+    t.bot = needs.map(n => n + A - BOT);                               // cumulative bottom edge of groups 0..i, in stage coordinates
     t.stage.style.height = A + 'px';
     t.track.style.height = (A + (pans.length - 1) * M.step) + 'px';
     apply(t);
@@ -1176,11 +1177,25 @@ let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollD
     t.shownN = c;
     setTimeout(() => done.forEach(el => el.style.setProperty('--i', 0)), 2200);   // hover transitions shouldn't inherit the stagger delay
   }
+  // An item pops in only when it has room on the stage AND its bottom edge is actually inside the viewport.
+  // Items still below the fold stay hidden and pop in as you scroll them into view, never before.
+  function reveal(t) {
+    if (t.released || t.free || t.idx < 0 || !t.bot) return;
+    const k = Math.max(0, Math.min(t.pans.length - 1, t.idx)), pan = t.pans[k];
+    const stageTop = t.stage.getBoundingClientRect().top;
+    let c = t.shownN;
+    while (c < t.counts[k]) {
+      const y = Math.min(t.bot[c], pan + M.avail - BOT);              // bottom edge of this group, in stage coordinates
+      if (stageTop - pan + y > innerHeight - 3) break;                 // not on screen yet: wait for more scrolling
+      c++;
+    }
+    showTo(t, c);
+  }
   function apply(t) {
     if (t.released || t.free) return;
     const k = Math.max(0, Math.min(t.pans.length - 1, t.idx));
     t.inner.style.setProperty('--pan', t.pans[k].toFixed(1));
-    if (t.idx >= 0) showTo(t, t.counts[k]);
+    reveal(t);
   }
   let lastY = scrollY;
   // Anchor used to keep the screen steady while a track changes layout.
@@ -1217,7 +1232,7 @@ let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollD
       if (rect.bottom < HEADER - 60) { release(t); continue; }           // already scrolled past
       const idx = rect.top < innerHeight - 140 ? Math.min(t.pans.length - 1, Math.max(0, Math.floor(d / M.step + 0.6))) : -1;   // starts as soon as the section peeks into view
       if (up && d > 0 && idx >= 0 && !navigating) { release(t); continue; }   // heading back up: show it all, then scroll away freely
-      if (idx > t.idx) { t.idx = idx; apply(t); }
+      if (idx > t.idx) { t.idx = idx; apply(t); } else reveal(t);
     }
     lastY = scrollY;
   }
