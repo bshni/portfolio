@@ -622,11 +622,11 @@ section.hero{ position:relative; }
 html.story header.site + main > section.story-sec{ display:block; padding:0; min-height:0; }
 html.story header.site + main > section.story-flow{ display:block; min-height:0; padding:72px 0 0; }
 .story-track{ position:relative; }
-.story-stage{ position:sticky; top:52px; display:flex; align-items:center; }
-.story-inner{ width:100%; transform-origin:center center; transform:scale(var(--fit,1)); }
+.story-stage{ position:sticky; top:52px; display:block; overflow-y:clip; overflow-x:visible; }
+.story-inner{ width:100%; position:relative; display:flow-root; transform:translateY(calc(var(--pan,0) * -1px)); transition:transform .75s cubic-bezier(.22,.8,.3,1); will-change:transform; }
 .story-track.free{ height:auto !important; }
-.story-track.free .story-stage{ position:relative; top:auto; height:auto !important; padding:24px 0; }
-.story-track.free .story-inner{ transform:none; }
+.story-track.free .story-stage{ position:relative; top:auto; height:auto !important; padding:24px 0; overflow:visible; }
+.story-track.free .story-inner, .story-track.released .story-inner{ transform:none !important; transition:none; will-change:auto; }
 html.story .story-item{
   opacity:0; transform:var(--from, translateY(44px) scale(.94));
   transition: opacity .55s ease, transform .8s var(--spring), border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
@@ -677,7 +677,7 @@ html.story .project-card > .shot-frame .project-shot{ max-height:300px; width:au
 /* released stories: once everything is shown (or you scroll back up) the section stops being pinned and scrolls like a normal page */
 html, body{ overflow-anchor:none; }
 .story-track.released{ height:auto !important; }
-.story-track.released .story-stage{ position:relative; top:auto; }
+.story-track.released .story-stage{ position:relative; top:auto; height:auto !important; overflow:visible; display:flex; align-items:center; }
 </style>
 </head>
 <body>
@@ -1110,22 +1110,29 @@ document.querySelectorAll('.job').forEach(job => {
 });
 
 
-// Step-by-step storytelling (desktop). Pattern: a pinned "stage" (position:sticky) inside a tall "track";
-// native scrolling moves through the track and each step reveals one piece of content.
-// Nothing here intercepts the wheel. Touch, narrow and reduced-motion visitors keep the normal page.
+// Shared scroll state (used by the story, the assist glide and the navigation below)
+let storyApi = null, storyAssist = null, navigating = false, navTok = 0, scrollDir = 'down';
+{ let ly = scrollY; addEventListener('scroll', () => { if (scrollY !== ly) scrollDir = scrollY > ly ? 'down' : 'up'; ly = scrollY; }, { passive: true }); }
+
+// Step-by-step storytelling (laptops / desktops with a mouse or touchpad).
+// A pinned "stage" (position:sticky) sits inside a tall "track"; native scrolling moves through the track.
+// Items pop in automatically, in order, for as long as there is room for them on the stage. When the next
+// item has no room left, the stage waits for another scroll, then pans down and the next items pop in.
+// Nothing here intercepts the wheel / touchpad. Touch, narrow and reduced-motion visitors keep the normal page.
 (() => {
   if (!matchMedia('(pointer:fine) and (min-width:901px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   document.documentElement.classList.add('story');
-  const HEADER = 52, MIN_FIT = 0.72, PAD = 16;
+  const HEADER = 52, TOP = 16, BOT = 24;
   const $$ = (root, sel) => Array.from(root.querySelectorAll(sel));
   const $1 = (root, sel) => root.querySelector(sel);
   const metrics = () => ({ avail: innerHeight - HEADER, step: Math.max(260, Math.min(420, innerHeight * 0.42)) });
   let M = metrics();
   const tracks = [];
+  const yIn = (el, root) => { let y = 0; while (el && el !== root) { y += el.offsetTop; el = el.offsetParent; } return el === root ? y : null; };
 
   function make(content, groups) {
     groups = groups.map(g => g.filter(Boolean)).filter(g => g.length);
-    if (!groups.length || (M.avail - PAD) < content.offsetHeight * MIN_FIT) return null;   // would not fit: keep the normal layout
+    if (!groups.length) return null;
     const track = document.createElement('div'); track.className = 'story-track';
     const stage = document.createElement('div'); stage.className = 'story-stage';
     const inner = document.createElement('div'); inner.className = 'story-inner';
@@ -1133,44 +1140,97 @@ document.querySelectorAll('.job').forEach(job => {
     track.appendChild(stage); stage.appendChild(inner); inner.appendChild(content);
     $$(content, '.reveal').concat(content.classList.contains('reveal') ? [content] : []).forEach(el => el.classList.remove('reveal', 'in-view'));
     groups.forEach(g => g.forEach((el, i) => { el.classList.remove('reveal', 'in-view'); el.classList.add('story-item'); el.style.setProperty('--i', i); }));
-    const t = { track, stage, inner, groups, shown: -1, free: false };
+    const t = { track, stage, inner, groups, idx: -1, shownN: 0, pans: [0], counts: [groups.length], released: false, free: false };
     tracks.push(t); size(t); return t;
   }
+
+  // Work out the "pages" of a track: for each page, how far the stage is panned and how many leading groups fit.
   function size(t) {
-    t.stage.style.height = M.avail + 'px';
-    const fit = Math.min(1, Math.max(MIN_FIT, (M.avail - PAD) / t.inner.offsetHeight));
-    t.inner.style.setProperty('--fit', fit.toFixed(3));
-    if (!t.released) t.track.style.height = (M.avail + (t.groups.length - 1) * M.step) + 'px';
+    if (t.released || t.free) return;
+    const A = M.avail, n = t.groups.length, H = t.inner.offsetHeight;
+    let prev = -1e9;
+    const needs = t.groups.map(g => {                                  // pan needed so the group's bottom edge is on screen
+      let b = 0;
+      g.forEach(el => { if (el.querySelector('.story-item')) return; const y = yIn(el, t.inner); if (y != null) b = Math.max(b, y + el.offsetHeight); });
+      prev = Math.max(prev, b - (A - BOT)); return prev;
+    });
+    const fits = H <= A - 8;
+    const base = fits ? -(A - H) / 2 : -TOP;
+    const maxPan = Math.max(base, H - (A - BOT));
+    const cnt = p => { let c = 1; while (c < n && needs[c] <= p + 0.5) c++; return c; };
+    const pans = [base], counts = [fits ? n : cnt(base)];
+    while (counts[counts.length - 1] < n) {
+      const c = counts[counts.length - 1], last = pans[pans.length - 1];
+      const p = Math.min(maxPan, Math.max(needs[c], last + A * 0.4));
+      pans.push(p); counts.push(cnt(p));
+    }
+    t.pans = pans; t.counts = counts;
+    t.stage.style.height = A + 'px';
+    t.track.style.height = (A + (pans.length - 1) * M.step) + 'px';
+    apply(t);
+  }
+  function showTo(t, c) {
+    if (c <= t.shownN) return;
+    const done = []; let i = 0;
+    for (let gi = t.shownN; gi < c; gi++) t.groups[gi].forEach(el => { el.style.setProperty('--i', Math.min(i++, 14)); el.classList.add('shown'); done.push(el); });
+    t.shownN = c;
+    setTimeout(() => done.forEach(el => el.style.setProperty('--i', 0)), 2200);   // hover transitions shouldn't inherit the stagger delay
+  }
+  function apply(t) {
+    if (t.released || t.free) return;
+    const k = Math.max(0, Math.min(t.pans.length - 1, t.idx));
+    t.inner.style.setProperty('--pan', t.pans[k].toFixed(1));
+    if (t.idx >= 0) showTo(t, t.counts[k]);
   }
   let lastY = scrollY;
+  // Anchor used to keep the screen steady while a track changes layout.
+  function anchor(t) {
+    const r = t.track.getBoundingClientRect();
+    if (r.bottom <= HEADER) return () => t.track.getBoundingClientRect().bottom;
+    if (r.top >= innerHeight) return null;
+    return () => t.inner.getBoundingClientRect().top;
+  }
+  function keepSteady(t, change) {
+    const get = anchor(t), before = get && get();
+    change();
+    if (!get) return;
+    const diff = get() - before;
+    if (Math.abs(diff) > 1) scrollBy({ top: diff, behavior: 'instant' });
+  }
   // Show everything in the track and let it scroll like normal content, without moving anything on screen.
   function release(t) {
     if (t.released) return;
-    const before = t.stage.getBoundingClientRect().top;
-    t.released = true;
-    t.groups.forEach(g => g.forEach(el => el.classList.add('shown')));
-    t.shown = t.groups.length;
-    t.track.classList.add('released'); t.track.style.height = '';
-    const after = t.stage.getBoundingClientRect().top;
-    if (Math.abs(after - before) > 1) scrollBy({ top: after - before, behavior: 'instant' });
+    keepSteady(t, () => {
+      t.released = true;
+      t.groups.forEach(g => g.forEach(el => el.classList.add('shown')));
+      t.shownN = t.groups.length;
+      t.track.classList.add('released'); t.track.style.height = '';
+      t.stage.style.height = ''; t.stage.style.minHeight = M.avail + 'px';
+    });
   }
   function update() {
     const up = scrollY < lastY;
     for (const t of tracks) {
       if (t.released) continue;
       const rect = t.track.getBoundingClientRect();
-      const n = t.groups.length, d = HEADER - rect.top;                 // d: how far past the pin point we are
-      if (rect.bottom < HEADER - 60) { release(t); continue; }           // already scrolled past (e.g. jumped with the dots)
-      const count = Math.max(0, Math.min(n, Math.floor(d / M.step + 0.6) + 1));
-      if (up && d > 0 && count > 0) { release(t); continue; }            // heading back up: show it all, then scroll away freely
-      if (count >= n) { release(t); continue; }                          // last item shown: release
-      if (count > t.shown) {
-        t.groups.forEach((g, gi) => { if (gi < count) g.forEach(el => el.classList.add('shown')); });
-        t.shown = count;
-      }
+      const d = HEADER - rect.top;                                       // how far past the pin point we are
+      if (rect.bottom < HEADER - 60) { release(t); continue; }           // already scrolled past
+      const idx = rect.top < innerHeight - 140 ? Math.min(t.pans.length - 1, Math.max(0, Math.floor(d / M.step + 0.6))) : -1;   // starts as soon as the section peeks into view
+      if (up && d > 0 && idx >= 0 && !navigating) { release(t); continue; }   // heading back up: show it all, then scroll away freely
+      if (idx > t.idx) { t.idx = idx; apply(t); }
     }
     lastY = scrollY;
   }
+  // Glide: once a section is nearly at the top (its first items already popped in), settle it into its pinned place.
+  storyAssist = () => {
+    if (scrollDir !== 'down') return 0;
+    for (const t of tracks) {
+      if (t.released) continue;
+      const d = HEADER - t.track.getBoundingClientRect().top;
+      if (d < -8 && d > -M.step * 0.6) return -d - 2;
+    }
+    return 0;
+  };
 
   const sec = (id) => document.getElementById(id);
   const mark = (id, cls) => { const s = sec(id); if (s) s.classList.add(cls); return s; };
@@ -1218,15 +1278,16 @@ document.querySelectorAll('.job').forEach(job => {
       if (!t) return; any = true;
       const det = $1(card, 'details.case-study');
       if (det) det.addEventListener('toggle', () => {           // an opened case study is taller than the screen: let it scroll normally
-        const before = t.stage.getBoundingClientRect().top;
+        const before = t.inner.getBoundingClientRect().top;
         t.free = det.open; t.track.classList.toggle('free', det.open); if (det.open) release(t); size(t); update();
-        const after = t.stage.getBoundingClientRect().top;
+        const after = t.inner.getBoundingClientRect().top;
         if (Math.abs(after - before) > 1) scrollBy({ top: after - before, behavior: 'instant' });
       });
     });
     if (any) { s.classList.add('story-flow'); $1(s, '.project-stack').style.gap = '0'; } })();
 
   if (!tracks.length) { document.documentElement.classList.remove('story'); return; }
+  storyApi = { tracks, release, HEADER };
   tracks.forEach(size); update();
   let raf = 0;
   addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
@@ -1236,25 +1297,28 @@ document.querySelectorAll('.job').forEach(job => {
 
 // Scroll assist: when an item pops in partly below the fold, glide just far enough to show it fully
 // once the visitor has stopped scrolling. At most once per scroll gesture, so it never runs away.
+// On laptops (story mode) the same idea settles a section into its pinned place.
 const pendingAssist = new Set();
 let userGesture = false, assistLock = false, assistTimer = 0;
-['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(ev => addEventListener(ev, () => { userGesture = true; }, { passive: true }));
+['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(ev => addEventListener(ev, () => { userGesture = true; navTok++; navigating = false; }, { passive: true }));
 function runAssist() {
   const list = Array.from(pendingAssist); pendingAssist.clear();
-  if (!list.length || assistLock || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const vh = innerHeight; let best = null;
+  const gesture = userGesture;
+  if (assistLock || navigating || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const vh = innerHeight; let best = null, by = 0;
   list.forEach(el => { const r = el.getBoundingClientRect(); if (!best || r.bottom > best.bottom) best = r; });
-  if (!best) return;
-  let by = 0;
-  if (best.height <= vh - 52 - 40) { if (best.bottom > vh - 16 && best.top > 52) by = best.bottom - vh + 36; }   // fits: show all of it
-  else if (best.top > vh * 0.55) by = best.top - 52 - 24;                                                         // tall: bring its start into view
+  if (best) {
+    if (best.height <= vh - 52 - 40) { if (best.bottom > vh - 16 && best.top > 52) by = best.bottom - vh + 36; }   // fits: show all of it
+    else if (best.top > vh * 0.55) by = best.top - 52 - 24;                                                         // tall: bring its start into view
+  }
+  if (!by && gesture && storyAssist) by = storyAssist();
   if (by > 8) {
     assistLock = true; userGesture = false;
     scrollBy({ top: by, behavior: 'smooth' });
     setTimeout(() => { assistLock = false; }, 1000);
   }
 }
-addEventListener('scroll', () => { if (!pendingAssist.size) return; clearTimeout(assistTimer); assistTimer = setTimeout(runAssist, 240); }, { passive: true });
+addEventListener('scroll', () => { if (navigating) return; clearTimeout(assistTimer); assistTimer = setTimeout(runAssist, 240); }, { passive: true });
 
 const revealEls = Array.from(document.querySelectorAll('.reveal'));
 if ('IntersectionObserver' in window && revealEls.length) {
@@ -1262,11 +1326,13 @@ if ('IntersectionObserver' in window && revealEls.length) {
   let seen = false;
   try {
     const revealObserver = new IntersectionObserver((entries, obs) => {
+      const hits = entries.filter(e => e.isIntersecting).sort((x, y) => (x.target.compareDocumentPosition(y.target) & 4) ? -1 : 1);
+      hits.forEach((e, i) => e.target.style.setProperty('--i', Math.min(i, 8)));   // everything that has room pops in, one after another
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           seen = true;
           entry.target.classList.add('in-view');
-          if (userGesture) pendingAssist.add(entry.target);
+          if (userGesture && !navigating) pendingAssist.add(entry.target);
           obs.unobserve(entry.target);
         }
       });
@@ -1287,6 +1353,40 @@ if ('IntersectionObserver' in window && revealEls.length) {
   }, 2500);
 }
 
+// Navigation: every button / link that points at a section jumps straight to it.
+// Stories above the target are released first so the layout can't shift under the glide, then we land exactly on it.
+function sectionTargetY(el) {
+  if (!el) return 0;
+  return Math.max(0, Math.round(el.getBoundingClientRect().top + scrollY - 52 - (el.classList.contains('story-sec') ? 2 : 0)));
+}
+function goTo(id) {
+  const el = (!id || id === 'top') ? null : document.getElementById(id);
+  if (storyApi && el) storyApi.tracks.forEach(t => {
+    if (!t.released && (t.track.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) storyApi.release(t);
+  });
+  const tok = ++navTok; navigating = true; assistLock = false; pendingAssist.clear(); clearTimeout(assistTimer);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  scrollTo({ top: sectionTargetY(el), behavior: reduced ? 'instant' : 'smooth' });
+  let last = -1, still = 0, fixes = 0;
+  const poll = setInterval(() => {
+    if (tok !== navTok) { clearInterval(poll); return; }           // the visitor took over, or another jump started
+    still = Math.abs(scrollY - last) < 1 ? still + 1 : 0; last = scrollY;
+    if (still < 3) return;
+    const y = sectionTargetY(el);
+    if (Math.abs(scrollY - y) > 3 && fixes++ < 3) { scrollTo({ top: y, behavior: 'instant' }); still = 0; return; }
+    clearInterval(poll); navigating = false;
+  }, 90);
+}
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('a[href^="#"]');
+  if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const id = a.getAttribute('href').slice(1);
+  if (id && id !== 'top' && !document.getElementById(id)) return;
+  e.preventDefault(); goTo(id);
+  try { history.replaceState(null, '', (id && id !== 'top') ? '#' + id : location.pathname + location.search); } catch (err) {}
+});
+if (location.hash.length > 1 && document.getElementById(location.hash.slice(1))) setTimeout(() => goTo(location.hash.slice(1)), 200);
+
 // Dot navigation: one dot per section, highlights where you are, click to glide there.
 (() => {
   const secs = Array.from(document.querySelectorAll('main > section'));
@@ -1301,7 +1401,7 @@ if ('IntersectionObserver' in window && revealEls.length) {
     btn.type = 'button';
     btn.setAttribute('aria-label', label);
     btn.dataset.label = label;
-    btn.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    btn.addEventListener('click', () => goTo(sec.id || null));
     nav.appendChild(btn);
     return btn;
   });
