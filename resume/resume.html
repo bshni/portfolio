@@ -2,91 +2,58 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mohamed Atia — Resume</title>
+<title>Mohamed Ahmed Rashed Atia - Data Analyst Resume</title>
 <style>
-  @page { size: A4; margin: 15mm 18mm; }
-  *{ box-sizing: border-box; }
-  body{
-    margin:0; font-family: Georgia, 'Times New Roman', serif;
-    color:#1A1D22; font-size: 10.3pt; line-height:1.42;
+  @page { size: A4; margin: 12mm 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+    color: #111; font-size: 9.4pt; line-height: 1.3;
   }
-  .sans{ font-family: Arial, Helvetica, sans-serif; }
-  header{ margin-bottom: 10px; }
-  h1{
-    font-size: 20pt; margin: 0 0 2px; letter-spacing: 0.01em; font-weight:700;
+  h1 { font-size: 19pt; margin: 0 0 1px; font-weight: 700; }
+  .headline { font-size: 10pt; font-weight: 700; margin: 0 0 3px; }
+  .contact { font-size: 8.8pt; margin: 0; }
+  .contact a, .entry-link a { color: #111; text-decoration: none; }
+  h2 {
+    font-size: 9.8pt; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 700; margin: 7px 0 3px; padding-bottom: 1px;
+    border-bottom: 1px solid #333;
   }
-  .role{
-    font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight:700;
-    color:#0F7A56; letter-spacing:0.02em; margin: 0 0 5px;
-  }
-  .contact{
-    font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color:#40454D;
-  }
-  .contact a{ color:#40454D; text-decoration:none; }
-  .rule{ border:none; border-top: 1.4px solid #1A1D22; margin: 8px 0 6px; }
-  h2{
-    font-family: Arial, Helvetica, sans-serif; font-size: 10pt; text-transform: uppercase;
-    letter-spacing: 0.06em; font-weight:700; color:#0F7A56;
-    margin: 11px 0 6px; padding-bottom:2px; border-bottom: 1px solid #D8DCE2;
-  }
-  section:first-of-type h2{ margin-top:0; }
-  p{ margin: 0 0 6px; }
-  .summary{ font-size: 10.1pt; }
-  .skill-row{ margin: 0 0 3px; font-size: 9.9pt; }
-  .skill-row b{ font-family: Arial, Helvetica, sans-serif; font-size:9.4pt; }
-  .job{ margin-bottom: 8px; }
-  .job:last-child{ margin-bottom:0; }
-  .job-head{
-    display:flex; justify-content:space-between; align-items:baseline; gap:12px;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  .job-title{ font-weight:700; font-size:10.3pt; }
-  .job-dates{ font-size: 9pt; color:#40454D; white-space:nowrap; }
-  .job-org{ font-size: 9.4pt; color:#40454D; font-style:italic; margin: 1px 0 3px; }
-  ul{ margin: 0; padding-left: 16px; }
-  li{ margin-bottom: 2px; }
-  .proj-title{ font-weight:700; font-family: Arial, Helvetica, sans-serif; font-size:10.1pt; }
-  .proj-link{ font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color:#0F7A56; }
-  .edu-row, .cert-row{
-    display:flex; justify-content:space-between; gap:12px; font-family: Arial, Helvetica, sans-serif;
-  }
-  .edu-main strong{ font-size:10.1pt; }
-  .edu-sub{ font-size:9.4pt; color:#40454D; }
-  .edu-meta{ font-size:9pt; color:#40454D; white-space:nowrap; text-align:right; }
-  .cert-list{ list-style:none; padding:0; margin:0; }
-  .cert-list li{
-    display:flex; justify-content:space-between; gap:12px;
-    font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; margin-bottom:2px;
-  }
-  .cert-list li span.date{ color:#40454D; font-size:9pt; white-space:nowrap; }
-  .additional{ font-size: 9.3pt; color:#2B2F36; }
-  .langs{ font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; }
+  p { margin: 0 0 3px; }
+  .entry { margin-bottom: 5px; page-break-inside: avoid; }
+  .entry-title { font-weight: 700; font-size: 9.6pt; margin: 0; }
+  .entry-meta { font-size: 8.8pt; color: #333; margin: 0 0 2px; }
+  .entry-link { font-size: 8.8pt; margin: 0 0 2px; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { position: relative; padding-left: 11px; margin-bottom: 1.5px; }
+  li:before { content: "\2022"; position: absolute; left: 1px; }
+  .skill-row { margin: 0 0 2px; }
 </style>
 </head>
 <body>
 
 <header>
   <h1>Mohamed Ahmed Rashed Atia</h1>
-  <div class="role">DATA ANALYST&nbsp;&nbsp;·&nbsp;&nbsp;PYTHON&nbsp;&nbsp;·&nbsp;&nbsp;SQL&nbsp;&nbsp;·&nbsp;&nbsp;POWER BI&nbsp;&nbsp;·&nbsp;&nbsp;TABLEAU</div>
-  <div class="contact">
-    Alexandria, Egypt &nbsp;|&nbsp; +20 105 094 8781 &nbsp;|&nbsp;
-    <a href="mailto:beshny2003@gmail.com">beshny2003@gmail.com</a> &nbsp;|&nbsp;
-    <a href="https://linkedin.com/in/bishnie">linkedin.com/in/bishnie</a> &nbsp;|&nbsp;
-    <a href="https://github.com/bshni">github.com/bshni</a>
-  </div>
+  <p class="headline">Data Analyst | Python, SQL Server, Power BI, Tableau</p>
+  <p class="contact">
+    Alexandria, Egypt | +20 105 094 8781 |
+    <a href="mailto:beshny2003@gmail.com">beshny2003@gmail.com</a> |
+    <a href="https://linkedin.com/in/bishnie">linkedin.com/in/bishnie</a> |
+    <a href="https://github.com/bshni">github.com/bshni</a> |
+    <a href="https://bshni.github.io/portfolio/">bshni.github.io/portfolio</a>
+  </p>
 </header>
-<hr class="rule">
 
 <section>
   <h2>Professional Summary</h2>
-  <p class="summary">Data Analyst trainee (Digital Egypt Pioneers Initiative, Round 5 — Ministry of Communications and Information Technology) with an accounting degree background from Alexandria University. Hands-on experience in Python (Pandas, exploratory data analysis, object-oriented programming), SQL, Microsoft Power BI, and Tableau, gained through structured training and an end-to-end retail analytics project covering data cleaning, feature engineering, statistical analysis, and automated KPI reporting. Combines accounting fundamentals with data-driven decision-making and C1-level English proficiency.</p>
+  <p>Data Analyst trainee with an accounting degree from Alexandria University, currently completing the Digital Egypt Pioneers Initiative (DEPI) Round 5 data analytics program under Egypt's Ministry of Communications and Information Technology. Skilled in Python (Pandas, SciPy), SQL Server (T-SQL, stored procedures, star schema, Medallion architecture), Power BI, and Tableau. Delivered three end-to-end projects: a Python retail analytics pipeline, a SQL Server data warehouse, and linked Tableau dashboards. Combines accounting fundamentals with data-driven decision-making and C1-level English.</p>
 </section>
 
 <section>
-  <h2>Core Skills</h2>
-  <p class="skill-row"><b>Programming &amp; Analytics:</b> Python, Pandas, SQL, Exploratory Data Analysis (EDA), Statistical Analysis, Data Cleaning, Feature Engineering</p>
-  <p class="skill-row"><b>BI &amp; Visualization:</b> Microsoft Power BI (Power Query, DAX, Data Modeling), Tableau, Data Storytelling, KPI Reporting</p>
-  <p class="skill-row"><b>Data Engineering &amp; Databases:</b> SQL Joins, Common Table Expressions (CTEs), Stored Procedures, Views, Database Design</p>
+  <h2>Skills</h2>
+  <p class="skill-row"><b>Programming &amp; Analytics:</b> Python, Pandas, SciPy, Matplotlib, Seaborn, SQL, Exploratory Data Analysis (EDA), Statistical Analysis, Data Cleaning, Feature Engineering, Object-Oriented Programming</p>
+  <p class="skill-row"><b>BI &amp; Visualization:</b> Microsoft Power BI (Power Query, DAX, Data Modeling), Tableau, Data Storytelling, KPI Reporting, Dashboard Design</p>
+  <p class="skill-row"><b>Databases &amp; Data Engineering:</b> SQL Server, T-SQL, SQL Joins, Common Table Expressions (CTEs), Stored Procedures, Views, Data Warehousing, ETL, Star Schema, Medallion Architecture, Database Design</p>
   <p class="skill-row"><b>Tools &amp; Platforms:</b> Git, GitHub, Jupyter Notebook, Microsoft Excel, Microsoft 365, Google Sheets</p>
   <p class="skill-row"><b>Business &amp; AI:</b> Accounting, Financial Reporting, Data Governance, Generative AI, Large Language Models (LLMs), Prompt Engineering</p>
 </section>
@@ -94,75 +61,85 @@
 <section>
   <h2>Work Experience</h2>
 
-  <div class="job">
-    <div class="job-head">
-      <span class="job-title">Data Analyst Trainee — Digital Egypt Pioneers Initiative (DEPI), Round 5, MCIT, in partnership with Skills Dynamix</span>
-      <span class="job-dates">Jul 2026 – Present</span>
-    </div>
-    <div class="job-org">Alexandria, Egypt · Hybrid</div>
+  <div class="entry">
+    <p class="entry-title">Data Analyst Trainee | Digital Egypt Pioneers Initiative (DEPI), Round 5</p>
+    <p class="entry-meta">Ministry of Communications and Information Technology (MCIT), in partnership with Skills Dynamix | Alexandria, Egypt (Hybrid) | Jul 2026 - Present</p>
     <ul>
-      <li>Selected for a national scholarship and professional training track in data analytics under Egypt's Ministry of Communications and Information Technology.</li>
-      <li>Developing Python skills for data analysis, including Pandas, data cleaning, exploratory data analysis (EDA), and object-oriented programming.</li>
-      <li>Building SQL skills across joins, common table expressions (CTEs), stored procedures, views, and database design.</li>
-      <li>Building interactive dashboards and data stories using Tableau and Microsoft Power BI, including Power Query, data modeling, and DAX.</li>
-      <li>Completing six graded mini-projects across Python, SQL, Tableau, and Power BI, plus an end-to-end capstone project with an executive presentation.</li>
+      <li>Selected for a national scholarship and professional training track in data analytics.</li>
+      <li>Apply Python (Pandas) to data cleaning, exploratory data analysis (EDA), and object-oriented programming.</li>
+      <li>Write SQL across joins, common table expressions (CTEs), stored procedures, views, and database design.</li>
+      <li>Build interactive dashboards and data stories in Tableau and Power BI, including Power Query, data modeling, and DAX.</li>
+      <li>Deliver six graded mini-projects across Python, SQL, Tableau, and Power BI, followed by an end-to-end capstone project with an executive presentation.</li>
     </ul>
   </div>
 
-  <div class="job">
-    <div class="job-head">
-      <span class="job-title">Internship Trainee — Commercial International Bank (CIB), Summer Internship Program 2024</span>
-      <span class="job-dates">Sep 2024 – Nov 2024</span>
-    </div>
-    <div class="job-org">Alexandria, Egypt · Remote</div>
+  <div class="entry">
+    <p class="entry-title">Internship Trainee | Commercial International Bank (CIB), Summer Internship Program</p>
+    <p class="entry-meta">Alexandria, Egypt (Remote) | Sep 2024 - Nov 2024</p>
     <ul>
       <li>Completed a structured banking internship spanning five modules: banking operations, ESG, financial literacy, entrepreneurship, and digital transformation.</li>
-      <li>Practiced professional workplace communication and active listening while engaging with data-driven business contexts.</li>
+      <li>Practiced professional workplace communication and active listening in data-driven business contexts.</li>
     </ul>
   </div>
 </section>
 
 <section>
   <h2>Projects</h2>
-  <div class="proj-title">Superstore Retail Analytics — Advanced Python Data Exploration &amp; Automated Reporting</div>
-  <div class="proj-link">github.com/bshni/Mini-Project-001-Superstore-retail-analytics-project</div>
-  <ul style="margin-top:5px;">
-    <li>Built an end-to-end analytics pipeline on the Sample Superstore dataset (9,994 rows, 21 columns) to uncover profitability, shipping-efficiency, and sales-performance drivers.</li>
-    <li>Implemented reusable, chainable object-oriented preprocessing pipelines with exception handling for missing values, duplicates, inconsistent formatting, and IQR outlier detection.</li>
-    <li>Engineered Profit Margin, Shipping Duration, Sales Performance Category, Discount Bucket, and calendar features; performed correlation, statistical significance, and trend analysis using scipy.stats.</li>
-    <li>Created 11 Matplotlib/Seaborn visualizations, an assembled dashboard, automated KPI summaries, and a final analytical report.</li>
-  </ul>
-</section>
 
-<section>
-  <h2>Education</h2>
-  <div class="edu-row">
-    <div class="edu-main">
-      <strong>Alexandria University — Bachelor's Degree in Accounting</strong>
-      <div class="edu-sub">Faculty of Commerce</div>
-    </div>
-    <div class="edu-meta">2022 – 2026<br>GPA 3.4090 (A-)</div>
+  <div class="entry">
+    <p class="entry-title">Superstore Sales &amp; Customer Dashboards (Tableau, SQL Server) | DEPI Mini Project 3, Team of 6 | 2026</p>
+    <p class="entry-link"><a href="https://github.com/bshni/tableau_superstore_sales_customer_dashboards">github.com/bshni/tableau_superstore_sales_customer_dashboards</a></p>
+    <ul>
+      <li>Built two linked Tableau dashboards on a SQL Server gold layer: sales, profit, and quantity KPIs with Jan-Dec trends and year-over-year % difference, plus customer counts, sales per customer, and top 10 customers by profit.</li>
+      <li>Designed KPIs that update dynamically with Category and Sub-Category filters, using a consistent color scheme (teal for favorable, orange for unfavorable) so the dashboards read without a legend.</li>
+      <li>Corrected inflated order counts caused by a missing Order ID in the gold layer by sourcing it from the silver layer and counting distinct orders; the distribution now reconciles to the 325 customers in the 2016 view.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <p class="entry-title">SQL Data Warehouse &amp; Business Analytics (SQL Server, T-SQL) | DEPI Mini Project 2 | 2026</p>
+    <p class="entry-link"><a href="https://github.com/bshni/sql_data_warehouse_business_analytics">github.com/bshni/sql_data_warehouse_business_analytics</a></p>
+    <ul>
+      <li>Built a retail data warehouse from a single flat file using Medallion architecture (Bronze, Silver, Gold) and a star schema with three dimensions and one fact table.</li>
+      <li>Automated loading with a Python Excel-to-CSV script, BULK INSERT, and truncate-and-reload stored procedures for the Bronze and Silver layers.</li>
+      <li>Implemented data quality checks per layer, a gold-layer data catalog, and a star schema diagram.</li>
+      <li>Wrote SQL analysis scripts (change over time, cumulative, performance, part-to-whole) and customer and product KPI report views covering recency, average order value, segmentation, and customer lifespan.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <p class="entry-title">Superstore Retail Analytics (Python, Pandas, SciPy) | DEPI Mini Project 1 | 2026</p>
+    <p class="entry-link"><a href="https://github.com/bshni/Mini-Project-001-Superstore-retail-analytics-project">github.com/bshni/Mini-Project-001-Superstore-retail-analytics-project</a></p>
+    <ul>
+      <li>Built an end-to-end Python pipeline on 9,994 retail orders ($2.29M sales, $284K profit, 12.4% margin) to identify profitability, shipping, and sales drivers.</li>
+      <li>Developed reusable, chainable object-oriented cleaning and feature-engineering classes with custom exception handling, IQR outlier detection, and engineered fields such as Profit Margin and Discount Bucket.</li>
+      <li>Found a significant negative correlation between discount and profit (r = -0.22) and traced most losses to Tables, Bookcases, and Supplies, supporting a pricing recommendation.</li>
+      <li>Delivered 11 Matplotlib/Seaborn visualizations, a dashboard, and an automated KPI report built with a custom report-generator class.</li>
+    </ul>
   </div>
 </section>
 
 <section>
+  <h2>Education</h2>
+  <p class="entry-title">Bachelor's Degree in Accounting | Alexandria University, Faculty of Commerce</p>
+  <p class="entry-meta">Alexandria, Egypt | 2022 - 2026 | GPA 3.409 (A-)</p>
+</section>
+
+<section>
   <h2>Certifications</h2>
-  <ul class="cert-list">
-    <li><span>IBM Data Fundamentals — IBM SkillsBuild</span><span class="date">Aug 2026</span></li>
-    <li><span>Associate Data Engineer in SQL — DataCamp</span><span class="date">Jan 2026</span></li>
-    <li><span>AI Fundamentals Certificate — DataCamp</span><span class="date">Dec 2025</span></li>
-    <li><span>Data Literacy Certificate — DataCamp</span><span class="date">Aug 2025</span></li>
-    <li><span>McKinsey Forward Program — McKinsey &amp; Company</span><span class="date">Dec 2024</span></li>
+  <ul>
+    <li>IBM Data Fundamentals, IBM SkillsBuild | Aug 2026</li>
+    <li>Associate Data Engineer in SQL, DataCamp | Jan 2026</li>
+    <li>AI Fundamentals Certificate, DataCamp | Dec 2025</li>
+    <li>Data Literacy Certificate, DataCamp | Aug 2025</li>
+    <li>McKinsey Forward Program, McKinsey &amp; Company | Dec 2024</li>
   </ul>
-  <p class="additional" style="margin-top:8px;">
-    <b class="sans" style="font-size:9.6pt;">Additional training:</b>
-    Zoho Books (Udemy), Ubuntu Linux Essentials (MaharaTech/ITI), ICDL (Edraak), HSBC Job Simulation (Forage), AI for Everyone (MaharaTech/ITI), Egyptian Banking Institute — Financial Literacy for Youth, Data Literacy (SAS), Digital Literacy &amp; Productivity (LinkedIn Learning), Sales Fundamentals (Udemy), First Aid (Edraak), Debating Basics (Community Misk), Emotional Intelligence (Edraak).
-  </p>
+  <p style="margin-top:3px;"><b>Additional Training:</b> Zoho Books (Udemy), Ubuntu Linux Essentials (MaharaTech/ITI), ICDL (Edraak), HSBC Job Simulation (Forage), AI for Everyone (MaharaTech/ITI), Financial Literacy for Youth (Egyptian Banking Institute), Data Literacy in Practice (SAS), Digital Literacy &amp; Productivity (LinkedIn Learning), Sales Fundamentals (Udemy).</p>
 </section>
 
 <section>
   <h2>Languages</h2>
-  <p class="langs">Arabic: Native &nbsp;|&nbsp; English: Advanced (C1 Certified, EF SET 67/100)</p>
+  <p>Arabic: Native | English: Advanced, C1 (EF SET 67/100)</p>
 </section>
 
 </body>
