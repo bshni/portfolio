@@ -6,38 +6,96 @@
     "email": "beshny2003@gmail.com",
     "phone": "+201050948781",
     "url": "https://bshni.github.io/portfolio/",
-    "summary": "Data Analyst with an accounting degree from Alexandria University and hands-on training in Python, SQL Server, Power BI, and Tableau through the Digital Egypt Pioneers Initiative (DEPI), Round 5. Built three end-to-end data analysis projects: a Python retail analytics pipeline, a SQL Server data warehouse with ETL, and linked Tableau dashboards. Combines accounting and financial reporting fundamentals with data cleaning, data visualization, and KPI reporting skills. English: C1.",
-    "location": { "city": "Alexandria", "countryCode": "EG" },
+    "summary": "Data Analyst with an accounting degree from Alexandria University and hands-on training in Python, SQL Server, Power BI, and Tableau through the Digital Egypt Pioneers Initiative (DEPI), Round 5. Built three data analysis projects: a Python retail analytics pipeline, a SQL Server data warehouse with ETL, and linked Tableau dashboards. Combines accounting and financial reporting fundamentals with data cleaning, data visualization, and KPI reporting skills. English: C1.",
+    "location": {
+      "city": "Alexandria",
+      "countryCode": "EG"
+    },
     "profiles": [
-      { "network": "LinkedIn", "username": "bishnie", "url": "https://linkedin.com/in/bishnie" },
-      { "network": "GitHub", "username": "bshni", "url": "https://github.com/bshni" }
+      {
+        "network": "LinkedIn",
+        "username": "bishnie",
+        "url": "https://linkedin.com/in/bishnie"
+      },
+      {
+        "network": "GitHub",
+        "username": "bshni",
+        "url": "https://github.com/bshni"
+      }
     ]
   },
   "work": [
     {
-      "name": "Digital Egypt Pioneers Initiative (DEPI), Round 5, Ministry of Communications and Information Technology (MCIT)",
+      "name": "Digital Egypt Pioneers Initiative (DEPI), Round 5, Ministry of Communications and IT (MCIT)",
       "position": "Data Analyst Trainee",
       "location": "Alexandria, Egypt (Hybrid)",
       "startDate": "2026-07",
       "summary": "National scholarship and professional training track in data analytics.",
       "highlights": [
-        "Selected for a national scholarship and professional training track in data analytics.",
-        "Apply Python (Pandas) for data cleaning, exploratory data analysis (EDA), and object-oriented programming.",
-        "Write SQL using joins, common table expressions (CTEs), stored procedures, views, and database design.",
-        "Build interactive dashboards in Tableau and Power BI using Power Query, data modeling, and DAX.",
-        "Deliver six graded mini-projects across Python, SQL, Tableau, and Power BI, followed by an end-to-end capstone project with an executive presentation."
+        "Selected for a national data analytics scholarship; completing six graded mini-projects and an end-to-end capstone.",
+        "Apply Python (Pandas) and SQL (joins, CTEs, stored procedures, views) for data cleaning, EDA, and database design.",
+        "Build interactive dashboards in Tableau and Power BI using Power Query, data modeling, and DAX."
       ]
     },
     {
       "name": "Commercial International Bank (CIB)",
-      "position": "Internship Trainee",
+      "position": "Online Internship",
       "location": "Alexandria, Egypt (Remote)",
       "startDate": "2024-09",
       "endDate": "2024-11",
       "summary": "Summer Internship Program.",
       "highlights": [
-        "Completed a five-module banking internship: banking operations, ESG, financial literacy, entrepreneurship, and digital transformation.",
+        "Completed five banking modules: operations, ESG, financial literacy, entrepreneurship, and digital transformation.",
         "Practiced professional communication and active listening in data-driven business contexts."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Superstore Sales & Customer Dashboards",
+      "description": "DEPI Mini Project 3, team of 6. Tableau, SQL Server. 2026.",
+      "startDate": "2026",
+      "url": "https://github.com/bshni/tableau_superstore_sales_customer_dashboards",
+      "keywords": [
+        "Tableau",
+        "SQL Server"
+      ],
+      "highlights": [
+        "Built two linked Tableau dashboards on a SQL Server gold layer tracking sales, profit, quantity, and customers.",
+        "Designed dynamic KPIs with year-over-year % change and Category and Sub-Category filters.",
+        "Fixed inflated order counts by sourcing Order ID from the silver layer; reconciled to 325 customers in 2016."
+      ]
+    },
+    {
+      "name": "SQL Data Warehouse & Business Analytics",
+      "description": "DEPI Mini Project 2. SQL Server, T-SQL, Python. 2026.",
+      "startDate": "2026",
+      "url": "https://github.com/bshni/sql_data_warehouse_business_analytics",
+      "keywords": [
+        "SQL Server",
+        "T-SQL",
+        "Python"
+      ],
+      "highlights": [
+        "Built a retail data warehouse using Medallion architecture (Bronze, Silver, Gold) and a star schema.",
+        "Automated ETL with Python, BULK INSERT, and stored procedures; added data quality checks and a data catalog.",
+        "Wrote SQL analysis scripts and customer and product KPI views: recency, average order value, segmentation."
+      ]
+    },
+    {
+      "name": "Superstore Retail Analytics",
+      "description": "DEPI Mini Project 1. Python, Pandas, SciPy. 2026.",
+      "startDate": "2026",
+      "url": "https://github.com/bshni/Mini-Project-001-Superstore-retail-analytics-project",
+      "keywords": [
+        "Python",
+        "Pandas",
+        "SciPy"
+      ],
+      "highlights": [
+        "Built a Python pipeline on 9,994 retail orders ($2.29M sales, 12.4% margin) to identify profit drivers.",
+        "Found a negative discount-profit correlation (r = -0.22); traced most losses to Tables, Bookcases, and Supplies.",
+        "Developed reusable OOP cleaning and feature engineering classes; delivered 11 visualizations and a KPI report."
       ]
     }
   ],
@@ -52,61 +110,99 @@
       "courses": []
     }
   ],
-  "certificates": [
-    { "name": "IBM Data Fundamentals", "issuer": "IBM SkillsBuild", "date": "2026-08" },
-    { "name": "Associate Data Engineer in SQL", "issuer": "DataCamp", "date": "2026-01" },
-    { "name": "AI Fundamentals Certificate", "issuer": "DataCamp", "date": "2025-12" },
-    { "name": "Data Literacy Certificate", "issuer": "DataCamp", "date": "2025-08" },
-    { "name": "McKinsey Forward Program", "issuer": "McKinsey & Company", "date": "2024-12" }
-  ],
   "skills": [
-    { "name": "Data Analysis", "keywords": ["Python", "Pandas", "SciPy", "Exploratory Data Analysis (EDA)", "Statistical Analysis", "Data Cleaning", "Feature Engineering", "Data Analysis", "Object-Oriented Programming"] },
-    { "name": "Data Visualization & BI", "keywords": ["Microsoft Power BI", "Power Query", "DAX", "Data Modeling", "Tableau", "Matplotlib", "Seaborn", "Dashboard Design", "Data Storytelling", "Key Performance Indicator (KPI) Reporting"] },
-    { "name": "Databases & Data Engineering", "keywords": ["SQL", "SQL Server", "T-SQL", "Joins", "Common Table Expressions (CTEs)", "Stored Procedures", "Views", "Data Warehousing", "Extract, Transform, Load (ETL)", "Star Schema", "Medallion Architecture", "Database Design"] },
-    { "name": "Tools", "keywords": ["Microsoft Excel", "Microsoft 365", "Google Sheets", "Git", "GitHub", "Jupyter Notebook"] },
-    { "name": "Business & AI", "keywords": ["Accounting", "Financial Reporting", "Data Governance", "Generative AI", "Large Language Models (LLMs)", "Prompt Engineering"] }
+    {
+      "name": "Data Analysis",
+      "keywords": [
+        "Python",
+        "Pandas",
+        "SciPy",
+        "EDA",
+        "Statistical Analysis",
+        "Data Cleaning",
+        "Feature Engineering",
+        "OOP"
+      ]
+    },
+    {
+      "name": "Data Visualization & BI",
+      "keywords": [
+        "Power BI (Power Query, DAX, Data Modeling)",
+        "Tableau",
+        "Matplotlib",
+        "Dashboard Design",
+        "KPIs"
+      ]
+    },
+    {
+      "name": "Databases & Data Engineering",
+      "keywords": [
+        "SQL",
+        "SQL Server",
+        "T-SQL",
+        "CTEs",
+        "Stored Procedures",
+        "Views",
+        "Data Warehousing",
+        "ETL"
+      ]
+    },
+    {
+      "name": "Tools",
+      "keywords": [
+        "Microsoft Excel",
+        "Microsoft 365",
+        "Google Sheets",
+        "Git",
+        "GitHub",
+        "Jupyter Notebook"
+      ]
+    },
+    {
+      "name": "Business & AI",
+      "keywords": [
+        "Accounting",
+        "Financial Reporting",
+        "Data Governance",
+        "Prompt Engineering"
+      ]
+    }
+  ],
+  "certificates": [
+    {
+      "name": "IBM Data Fundamentals",
+      "issuer": "IBM SkillsBuild",
+      "date": "2026-08"
+    },
+    {
+      "name": "Associate Data Engineer in SQL",
+      "issuer": "DataCamp",
+      "date": "2026-01"
+    },
+    {
+      "name": "AI Fundamentals Certificate",
+      "issuer": "DataCamp",
+      "date": "2025-12"
+    },
+    {
+      "name": "Data Literacy Certificate",
+      "issuer": "DataCamp",
+      "date": "2025-08"
+    },
+    {
+      "name": "McKinsey Forward Program",
+      "issuer": "McKinsey & Company",
+      "date": "2024-12"
+    }
   ],
   "languages": [
-    { "language": "Arabic", "fluency": "Native" },
-    { "language": "English", "fluency": "Advanced, C1 (EF SET 67/100)" }
-  ],
-  "projects": [
     {
-      "name": "Superstore Sales & Customer Dashboards",
-      "description": "DEPI Mini Project 3, team of 6. Tableau, SQL Server. 2026.",
-      "startDate": "2026",
-      "url": "https://github.com/bshni/tableau_superstore_sales_customer_dashboards",
-      "keywords": ["Tableau", "SQL Server"],
-      "highlights": [
-        "Built two linked Tableau dashboards on a SQL Server gold layer: sales, profit, and quantity KPIs with Jan-Dec trends and year-over-year % difference, plus customer counts, sales per customer, and top 10 customers by profit.",
-        "Designed KPIs that update dynamically with Category and Sub-Category filters, using a consistent color scheme (teal favorable, orange unfavorable).",
-        "Corrected inflated order counts caused by a missing Order ID by sourcing it from the silver layer and counting distinct orders; results reconcile to 325 customers in the 2016 view."
-      ]
+      "language": "Arabic",
+      "fluency": "Native"
     },
     {
-      "name": "SQL Data Warehouse & Business Analytics",
-      "description": "DEPI Mini Project 2. SQL Server, T-SQL, Python. 2026.",
-      "startDate": "2026",
-      "url": "https://github.com/bshni/sql_data_warehouse_business_analytics",
-      "keywords": ["SQL Server", "T-SQL", "Python"],
-      "highlights": [
-        "Built a retail data warehouse from a single flat file using Medallion architecture (Bronze, Silver, Gold) and a star schema with three dimensions and one fact table.",
-        "Automated ETL with a Python Excel-to-CSV script, BULK INSERT, and truncate-and-reload stored procedures; added data quality checks per layer and a gold-layer data catalog.",
-        "Wrote SQL analysis scripts (change over time, cumulative, performance, part-to-whole) and customer and product KPI report views covering recency, average order value, segmentation, and customer lifespan."
-      ]
-    },
-    {
-      "name": "Superstore Retail Analytics",
-      "description": "DEPI Mini Project 1. Python, Pandas, SciPy. 2026.",
-      "startDate": "2026",
-      "url": "https://github.com/bshni/Mini-Project-001-Superstore-retail-analytics-project",
-      "keywords": ["Python", "Pandas", "SciPy"],
-      "highlights": [
-        "Built an end-to-end Python pipeline on 9,994 retail orders ($2.29M sales, $284K profit, 12.4% margin) to identify profitability, shipping, and sales drivers.",
-        "Developed reusable object-oriented data cleaning and feature engineering classes with custom exception handling, IQR outlier detection, and fields such as Profit Margin and Discount Bucket.",
-        "Found a significant negative correlation between discount and profit (r = -0.22) and traced most losses to Tables, Bookcases, and Supplies, supporting a pricing recommendation.",
-        "Delivered 11 Matplotlib and Seaborn data visualizations, a dashboard, and an automated KPI report."
-      ]
+      "language": "English",
+      "fluency": "Advanced, C1 (EF SET 67/100)"
     }
   ]
 }
